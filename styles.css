@@ -711,18 +711,11 @@ body {
   line-height: 1.45;
 }
 
-.abundance-result strong {
-  display: block;
-  margin-top: 4px;
-  font-family: "Fraunces", serif;
-  font-size: 1.9rem;
-  line-height: 1;
-  color: var(--navy);
-}
-
 .abundance-result p {
-  margin: 8px 0 0;
-  color: var(--muted);
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
   line-height: 1.5;
 }
 

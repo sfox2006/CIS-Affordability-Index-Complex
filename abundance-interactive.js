@@ -72,7 +72,6 @@ function setResult(panelId, row, context) {
   if (!result || !row) return;
   result.innerHTML = `
     <span>${context}</span>
-    <strong>${abundancePercent(row.value)}</strong>
     <p>${abundanceSentence(row.label, row.value)}</p>
   `;
 }
@@ -94,15 +93,9 @@ function renderElectricianAbundance() {
   const rows = data.rows;
   abundanceState.electricianGood ||= rows[0]?.label || "";
   const select = document.getElementById("electrician-good-select");
-  const svg = document.getElementById("electrician-abundance-chart");
   fillAbundanceSelect(select, rows, abundanceState.electricianGood);
   const selected = rows.find((row) => row.label === abundanceState.electricianGood) || rows[0];
-  renderAbundanceBars(svg, rows, selected?.label);
   setResult("electrician", selected, `${data.title}, ${data.period}`);
-  wireBarClicks(svg, select, (label) => {
-    abundanceState.electricianGood = label;
-    renderElectricianAbundance();
-  });
 }
 
 function renderNationalAbundance() {
@@ -111,15 +104,9 @@ function renderNationalAbundance() {
   const rows = data.rows;
   abundanceState.nationalGood ||= rows[0]?.label || "";
   const select = document.getElementById("national-good-select");
-  const svg = document.getElementById("national-abundance-chart");
   fillAbundanceSelect(select, rows, abundanceState.nationalGood);
   const selected = rows.find((row) => row.label === abundanceState.nationalGood) || rows[0];
-  renderAbundanceBars(svg, rows, selected?.label);
   setResult("national", selected, `${data.title}, ${data.period}`);
-  wireBarClicks(svg, select, (label) => {
-    abundanceState.nationalGood = label;
-    renderNationalAbundance();
-  });
 }
 
 function renderStateAbundance() {
@@ -136,7 +123,6 @@ function renderStateAbundance() {
   const stateSelect = document.getElementById("state-abundance-select");
   const wageSelect = document.getElementById("state-wage-select");
   const goodSelect = document.getElementById("state-good-select");
-  const svg = document.getElementById("state-abundance-chart");
 
   stateSelect.innerHTML = stateNames.map((name) => `<option value="${name}">${name}</option>`).join("");
   stateSelect.value = abundanceState.stateName;
@@ -145,12 +131,7 @@ function renderStateAbundance() {
 
   const selected = rows.find((row) => row.label === abundanceState.stateGood) || rows[0];
   const wageLabel = abundanceState.wageGroup === "women" ? "Female average full-time wage" : "Male average full-time wage";
-  renderAbundanceBars(svg, rows, selected?.label);
   setResult("state", selected, `${abundanceState.stateName}, ${wageLabel}, ${stateData.period}`);
-  wireBarClicks(svg, goodSelect, (label) => {
-    abundanceState.stateGood = label;
-    renderStateAbundance();
-  });
 }
 
 function initPersonalAbundance() {
