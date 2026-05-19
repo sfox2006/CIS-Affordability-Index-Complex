@@ -33,6 +33,14 @@ function groupShortLabel(label, maxLength = 28) {
   return label.length > maxLength ? `${label.slice(0, maxLength - 1)}...` : label;
 }
 
+function escapeGroupAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function groupSeries() {
   const data = window.CPI_DATA;
   if (!data) return [];
@@ -270,11 +278,34 @@ function renderGroupLineChart(start, end) {
     const last = line.values[line.values.length - 1];
     const x = width - margin.right + 14;
     const y = labelYById.get(line.id) ?? margin.top;
+    const pathD = svgPath(line.values, width, height, margin, minValue, maxValue);
+    const points = line.values.map((point, pointIndex) => {
+      if (!Number.isFinite(point.value)) return "";
+      const pointX = margin.left + (line.values.length > 1 ? (plotWidth / (line.values.length - 1)) * pointIndex : plotWidth / 2);
+      const pointY = margin.top + plotHeight - ((point.value - minValue) / (maxValue - minValue || 1)) * plotHeight;
+      const title = `${groupFormatQuarter(point.date)}\n${line.label}: ${groupFormatPercent(point.value)} since start quarter`;
+      return `
+        <g class="group-point-group"
+          data-date="${escapeGroupAttribute(point.date)}"
+          data-date-label="${escapeGroupAttribute(groupFormatQuarter(point.date))}"
+          data-series="${escapeGroupAttribute(line.label)}"
+          data-change="${escapeGroupAttribute(groupFormatPercent(point.value))}"
+          data-color="${escapeGroupAttribute(line.color)}"
+          data-x="${pointX.toFixed(2)}"
+          data-y="${pointY.toFixed(2)}">
+          <circle class="group-point-hit" cx="${pointX.toFixed(2)}" cy="${pointY.toFixed(2)}" r="8">
+            <title>${escapeGroupAttribute(title)}</title>
+          </circle>
+          <circle class="group-point" cx="${pointX.toFixed(2)}" cy="${pointY.toFixed(2)}" r="2.8" fill="${line.color}"></circle>
+        </g>
+      `;
+    }).join("");
     return `
-      <path class="group-series-line" d="${svgPath(line.values, width, height, margin, minValue, maxValue)}"
+      <path class="group-series-line" d="${pathD}"
         stroke="${line.color}" stroke-width="${line.strokeWidth || 2.2}" ${line.strokeDasharray ? `stroke-dasharray="${line.strokeDasharray}"` : ""}>
         <title>${line.label}: ${groupFormatPercent(last.value)} by ${groupFormatQuarter(last.date)}</title>
       </path>
+      ${points}
       <text class="group-line-label" x="${x}" y="${y + 4}" fill="${line.color}">${groupShortLabel(line.label)} (${groupFormatPercent(last.value)})</text>
     `;
   }).join("");
@@ -288,6 +319,67 @@ function renderGroupLineChart(start, end) {
     ${lineMarkup}
     ${xTicks}
   `;
+}
+
+function hideGroupLineTooltip() {
+  const svg = document.getElementById("group-line-chart");
+  const tooltip = document.getElementById("group-line-tooltip");
+  tooltip?.classList.remove("visible");
+  svg?.querySelectorAll(".group-point-group.is-active").forEach((item) => item.classList.remove("is-active"));
+}
+
+function showGroupLineTooltip(group) {
+  const svg = document.getElementById("group-line-chart");
+  const tooltip = document.getElementById("group-line-tooltip");
+  const frame = svg?.closest(".chart-frame");
+  if (!svg || !tooltip || !frame || !group) return;
+
+  const x = Number(group.dataset.x || 0);
+  const y = Number(group.dataset.y || 0);
+  const frameWidth = frame.clientWidth;
+  const frameHeight = frame.clientHeight;
+  const leftPx = (x / 980) * frameWidth;
+  const topPx = (y / 520) * frameHeight;
+  const tooltipWidth = 230;
+  let tooltipLeft = leftPx + 16;
+  if (tooltipLeft + tooltipWidth > frameWidth - 10) {
+    tooltipLeft = leftPx - tooltipWidth - 16;
+  }
+  tooltipLeft = Math.max(10, tooltipLeft);
+
+  tooltip.innerHTML = `
+    <div class="tooltip-date">${group.dataset.dateLabel || ""}</div>
+    <div class="tooltip-row">
+      <span class="tooltip-dot" style="background:${group.dataset.color || "#0e6b5c"}"></span>
+      <span>${group.dataset.series || "Series"}</span>
+      <span class="tooltip-val">${group.dataset.change || "--"}</span>
+    </div>
+    <div class="tooltip-note">Cumulative change since the selected start quarter.</div>
+  `;
+  tooltip.style.left = `${tooltipLeft}px`;
+  tooltip.style.top = `${Math.max(10, topPx - 48)}px`;
+  tooltip.classList.add("visible");
+}
+
+function wireGroupLineHover() {
+  const svg = document.getElementById("group-line-chart");
+  if (!svg || svg.dataset.groupHoverWired === "true") return;
+  svg.dataset.groupHoverWired = "true";
+
+  svg.addEventListener("mousemove", (event) => {
+    const group = event.target.closest(".group-point-group");
+    if (!group) {
+      hideGroupLineTooltip();
+      return;
+    }
+    svg.querySelectorAll(".group-point-group.is-active").forEach((item) => {
+      if (item !== group) item.classList.remove("is-active");
+    });
+    group.classList.add("is-active");
+    showGroupLineTooltip(group);
+  });
+
+  svg.addEventListener("mouseleave", hideGroupLineTooltip);
 }
 
 function buildAbundanceRows(start, end) {
@@ -402,6 +494,7 @@ function initGroupCharts() {
     fillGroupDateSelects();
     renderGroupCharts();
   });
+  wireGroupLineHover();
   renderGroupCharts();
 }
 

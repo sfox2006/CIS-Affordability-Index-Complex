@@ -541,6 +541,20 @@
     .series-area.cpi { fill: rgba(201,64,58,0.07); }
     .series-area.wpi { fill: rgba(125,75,209,0.07); }
     .baseline-line { stroke: rgba(22,54,47,0.18); stroke-width: 1; stroke-dasharray: 4 3; }
+    .chart-point {
+      stroke: var(--surface);
+      stroke-width: 1.3;
+      pointer-events: all;
+      cursor: pointer;
+    }
+    .chart-point-hit {
+      fill: transparent;
+      pointer-events: all;
+      cursor: pointer;
+    }
+    .chart-point.selected { fill: var(--blue, #0b6ea8); }
+    .chart-point.cpi { fill: var(--red, #c9403a); }
+    .chart-point.wpi { fill: var(--wpi-c, #7d4bd1); }
 
     /* Tooltip */
     .chart-tooltip {
@@ -557,6 +571,7 @@
     .tooltip-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
     .tooltip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .tooltip-val { font-weight: 700; margin-left: auto; padding-left: 16px; }
+    .tooltip-note { margin-top: 8px; color: var(--muted); font-size: 0.72rem; }
 
     /* Annotation */
     .anno-marker {
@@ -759,6 +774,21 @@
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
+    }
+    .group-point {
+      stroke: var(--surface);
+      stroke-width: 1.4;
+      cursor: pointer;
+      transition: r 0.12s ease, stroke-width 0.12s ease;
+    }
+    .group-point-hit {
+      fill: transparent;
+      pointer-events: all;
+      cursor: pointer;
+    }
+    .group-point-group.is-active .group-point {
+      r: 5;
+      stroke-width: 2;
     }
     .group-line-label {
       font-size: 0.72rem;
@@ -1096,6 +1126,7 @@
           </div>
           <div class="chart-frame">
             <svg id="group-line-chart" viewBox="0 0 980 520" role="img" aria-label="Interactive line chart of CPI groups, CPI and WPI"></svg>
+            <div class="chart-tooltip" id="group-line-tooltip"></div>
           </div>
         </article>
 
