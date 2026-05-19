@@ -34,7 +34,8 @@ http://127.0.0.1:8000
 - `index.html` for the page structure
 - `app.js` for the comparison logic and chart rendering
 - `styles.css` for styling
-- `data.js` for the bundled CPI dataset used by the static site
+- `data.js` for the bundled CPI and WPI datasets used by the static site
+- `group-charts.js` for the CPI group inflation and wage-relative abundance charts
 - `server.py` for local Python serving and data tooling
 
 ## Features
@@ -44,8 +45,10 @@ http://127.0.0.1:8000
 - CPI and WPI percentage comparisons
 - rebased charts starting at `1`
 - separate price-vs-CPI and price-vs-WPI charts
+- interactive CPI group line chart
+- CPI groups relative to wages abundance bar chart
 
 ## Data sources
 
-- CPI workbook: `C:\Users\samfo\Downloads\6401018 (1).xlsx`
-- WPI workbook: `C:\Users\samfo\Downloads\WPI to 2010.xlsx`
+- CPI workbook: `C:\RProjects\CIS_Marian\CPI GROUP data from 1948-Sept 2025 (EDITED).xlsx`
+- WPI workbook: `C:\Users\samfo\Downloads\WPI.xlsx`

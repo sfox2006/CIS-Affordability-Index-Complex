@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
   dataset: null,
   selectedSeries: null,
   cpiSeries: null,
@@ -8,8 +8,8 @@ const state = {
   basketRowId: 0,
 };
 
-const WPI_START_DATE = "2010-12-01";
-const WPI_DATA = [{"date":"2010-12-01","value":101.0},{"date":"2011-03-01","value":101.909},{"date":"2011-06-01","value":102.6224},{"date":"2011-09-01","value":103.4433},{"date":"2011-12-01","value":104.4778},{"date":"2012-03-01","value":105.5226},{"date":"2012-06-01","value":106.4723},{"date":"2012-09-01","value":107.324},{"date":"2012-12-01","value":108.0753},{"date":"2013-03-01","value":108.8318},{"date":"2013-06-01","value":109.4848},{"date":"2013-09-01","value":110.1417},{"date":"2013-12-01","value":110.9127},{"date":"2014-03-01","value":111.8},{"date":"2014-06-01","value":112.359},{"date":"2014-09-01","value":113.0332},{"date":"2014-12-01","value":113.7114},{"date":"2015-03-01","value":114.3936},{"date":"2015-06-01","value":114.9656},{"date":"2015-09-01","value":115.6554},{"date":"2015-12-01","value":116.2337},{"date":"2016-03-01","value":116.8149},{"date":"2016-06-01","value":117.3989},{"date":"2016-09-01","value":117.8685},{"date":"2016-12-01","value":118.4579},{"date":"2017-03-01","value":119.1686},{"date":"2017-06-01","value":119.7645},{"date":"2017-09-01","value":120.3633},{"date":"2017-12-01","value":121.0855},{"date":"2018-03-01","value":121.6909},{"date":"2018-06-01","value":122.421},{"date":"2018-09-01","value":123.1556},{"date":"2018-12-01","value":123.7713},{"date":"2019-03-01","value":124.3902},{"date":"2019-06-01","value":125.1365},{"date":"2019-09-01","value":125.7622},{"date":"2019-12-01","value":126.391},{"date":"2020-03-01","value":127.023},{"date":"2020-06-01","value":127.277},{"date":"2020-09-01","value":127.4043},{"date":"2020-12-01","value":128.0413},{"date":"2021-03-01","value":128.9376},{"date":"2021-06-01","value":129.5823},{"date":"2021-09-01","value":130.2302},{"date":"2021-12-01","value":131.1418},{"date":"2022-03-01","value":132.0598},{"date":"2022-06-01","value":133.1163},{"date":"2022-09-01","value":134.4475},{"date":"2022-12-01","value":135.523},{"date":"2023-03-01","value":136.8783},{"date":"2023-06-01","value":137.9733},{"date":"2023-09-01","value":139.7669},{"date":"2023-12-01","value":141.3044},{"date":"2024-03-01","value":142.2935},{"date":"2024-06-01","value":143.5742},{"date":"2024-09-01","value":144.8663},{"date":"2024-12-01","value":145.8804},{"date":"2025-03-01","value":147.1933},{"date":"2025-06-01","value":148.5181},{"date":"2025-09-01","value":149.7062},{"date":"2025-12-01","value":150.9038}];
+const WPI_START_DATE = window.WPI_DATA?.[0]?.date || "2010-12-01";
+const WPI_DATA = window.WPI_DATA || [];
 
 const elements = {
   sourceText: document.getElementById("source-text"),
@@ -174,11 +174,11 @@ function updateStatCards(filteredPoints) {
   elements.gapWpiChange.textContent = wpiAvailable ? formatPercent(gapWpi) : "No data";
   elements.selectedRange.textContent = rangeLabel;
   elements.cpiRange.textContent = rangeLabel;
-  elements.wpiRange.textContent = wpiAvailable ? rangeLabel : "No data available before Dec 2010.";
+  elements.wpiRange.textContent = wpiAvailable ? rangeLabel : "No wage data available for the selected range.";
   elements.gapCpiRange.textContent = "Selected good minus CPI over the chosen window.";
   elements.gapWpiRange.textContent = wpiAvailable
     ? "Selected good minus WPI over the chosen window."
-    : "WPI is unavailable because the chosen range starts before Dec 2010.";
+    : "WPI is unavailable for the chosen range.";
 
   setMetricTone(elements.selectedChange, selectedChange, true);
   setMetricTone(elements.cpiChange, cpiChange, true);
@@ -276,7 +276,7 @@ function resetEmptyState(message) {
   elements.cpiChartTitle.textContent = "Waiting for a selection";
   elements.cpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date.";
   elements.wpiChartTitle.textContent = "Waiting for a selection";
-  elements.wpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date. Wage data from Q4 2010 only.";
+  elements.wpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.";
   elements.cpiChart.innerHTML = "";
   elements.wpiChart.innerHTML = "";
   elements.emptyState.textContent = message;
@@ -285,7 +285,7 @@ function resetEmptyState(message) {
   elements.wpiChange.textContent = "--";
   elements.gapCpiChange.textContent = "--";
   elements.gapWpiChange.textContent = "--";
-  elements.wpiRange.textContent = "Available from Dec 2010 onward.";
+  elements.wpiRange.textContent = "Available from the WPI workbook start date onward.";
   elements.gapCpiRange.textContent = "Selected good minus CPI over the chosen window.";
   elements.gapWpiRange.textContent = "Selected good minus WPI over the chosen window.";
   elements.wpiLegend.classList.add("is-hidden");
@@ -401,11 +401,11 @@ function updateView() {
       classNames: { selectedValue: "selected", wpiValue: "wpi" },
     });
     elements.wpiLegend.classList.remove("is-hidden");
-    elements.wpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date. Wage data from Q4 2010 only.";
+    elements.wpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.";
   } else {
     elements.wpiChart.innerHTML = "";
     elements.wpiLegend.classList.add("is-hidden");
-    elements.wpiChartSubtitle.textContent = "No WPI data: wage data is only available from Q4 2010 (Dec 2010) onward. Please adjust your start date.";
+    elements.wpiChartSubtitle.textContent = "No WPI data is available for this range. Please adjust the dates.";
   }
 }
 
@@ -486,9 +486,9 @@ function renderBasketRows() {
 
   const totalWeight = getBasketSelections().reduce((sum, item) => sum + item.weight, 0);
   const duplicateCount = usedIds.length - new Set(usedIds).size;
-  let summary = `Weight total: ${totalWeight.toFixed(1)} — automatically normalised to 100% for the chart.`;
+  let summary = `Weight total: ${totalWeight.toFixed(1)} â€” automatically normalised to 100% for the chart.`;
   if (duplicateCount > 0) {
-    summary += " ⚠ Duplicate goods detected.";
+    summary += " âš  Duplicate goods detected.";
   }
   elements.basketSummary.textContent = summary;
 }
@@ -529,7 +529,7 @@ function updateSingleSeriesView() {
   elements.cpiChartTitle.textContent = `${series.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = `${series.seriesId} and All groups CPI, both rebased to 100 at the selected start date.`;
   elements.wpiChartTitle.textContent = `${series.label} vs WPI`;
-  elements.wpiChartSubtitle.textContent = `${series.seriesId} and All sector WPI, both rebased to 100 at the selected start date. Wage data from Q4 2010 only.`;
+  elements.wpiChartSubtitle.textContent = `${series.seriesId} and All sector WPI, both rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.`;
   updateView();
 }
 
@@ -554,7 +554,7 @@ function updateBasketView() {
   elements.cpiChartTitle.textContent = `${basket.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = "Custom basket and All groups CPI, both rebased to 100 at the selected start date.";
   elements.wpiChartTitle.textContent = `${basket.label} vs WPI`;
-  elements.wpiChartSubtitle.textContent = "Custom basket and All sector WPI, both rebased to 100 at the selected start date. Wage data from Q4 2010 only.";
+  elements.wpiChartSubtitle.textContent = "Custom basket and All sector WPI, both rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.";
   updateView();
 }
 
@@ -659,3 +659,5 @@ init().catch((error) => {
   elements.selectionMeta.textContent = "The static data bundle could not be loaded.";
   resetEmptyState("The application could not load the workbook data.");
 });
+
+

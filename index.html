@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── TOKENS ─────────────────────────────────────────── */
+    /* â”€â”€ TOKENS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     :root {
       --cg: #0e6b5c;
       --cg-dark: #0a4a3e;
@@ -70,7 +70,7 @@
       transition: background 0.35s, color 0.35s;
     }
 
-    /* ── NAV ─────────────────────────────────────────────── */
+    /* â”€â”€ NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .nav {
       position: sticky; top: 0; z-index: 200;
       height: var(--nav-h);
@@ -106,14 +106,14 @@
     .nav-btn-primary:hover { background: var(--cg-dark); color: white; border-color: var(--cg-dark); }
     .nav-btn svg { flex-shrink: 0; }
 
-    /* ── PAGE SHELL ──────────────────────────────────────── */
+    /* â”€â”€ PAGE SHELL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .shell {
       width: min(var(--page-w), calc(100% - 32px));
       margin: 0 auto;
       padding: 36px 0 64px;
     }
 
-    /* ── HERO ────────────────────────────────────────────── */
+    /* â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .hero {
       border-radius: var(--r-lg);
       margin-bottom: 24px;
@@ -127,7 +127,7 @@
       box-shadow: var(--sh);
     }
 
-    /* Editorial hero — dark green band */
+    /* Editorial hero â€” dark green band */
     .theme-editorial .hero {
       background: var(--cg-xdark);
       box-shadow: var(--sh-lg);
@@ -238,7 +238,7 @@
     #source-text { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
     .theme-editorial #source-text { color: rgba(255,255,255,0.5); }
 
-    /* ── CONTROLS ────────────────────────────────────────── */
+    /* â”€â”€ CONTROLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .controls-card {
       background: var(--surface);
       border: 1px solid var(--line2);
@@ -297,7 +297,7 @@
     .quarter-legend td:first-child { font-weight: 800; color: var(--ink); }
     .ctrl-group { position: relative; }
 
-    /* ── BASKET ──────────────────────────────────────────── */
+    /* â”€â”€ BASKET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .basket-card {
       background: var(--surface); border: 1px solid var(--line2);
       box-shadow: var(--sh); border-radius: var(--r-lg);
@@ -403,7 +403,7 @@
       color: var(--cg); font-size: 0.68rem; font-weight: 800;
     }
 
-    /* ── STAT CARDS ──────────────────────────────────────── */
+    /* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -453,7 +453,7 @@
     }
     .info-popover.is-open { display: block; }
 
-    /* Metric tones — only apply to gap cards, not selected/cpi/wpi */
+    /* Metric tones â€” only apply to gap cards, not selected/cpi/wpi */
     .metric-positive { color: var(--bad) !important; }
     .metric-negative { color: var(--good) !important; }
     .metric-neutral { color: var(--ink); }
@@ -465,7 +465,7 @@
       color: var(--ink) !important;
     }
 
-    /* ── CHARTS ──────────────────────────────────────────── */
+    /* â”€â”€ CHARTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -597,7 +597,7 @@
     /* Empty state */
     .empty-state { font-size: 0.86rem; color: var(--muted); margin-top: 10px; }
 
-    /* ── TWEAKS ──────────────────────────────────────────── */
+    /* â”€â”€ TWEAKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .tweaks-panel {
       display: none;
       position: fixed; bottom: 24px; right: 24px;
@@ -629,7 +629,7 @@
     }
     .tweak-swatch.active { border-color: var(--ink); transform: scale(1.15); }
 
-    /* ── UTILITY ─────────────────────────────────────────── */
+    /* â”€â”€ UTILITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .is-hidden { display: none !important; }
     .section-eyebrow {
       display: flex; align-items: center; gap: 10px;
@@ -637,9 +637,9 @@
       letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--muted); margin-bottom: 12px;
     }
-    .section-eyebrow::before { content: '•'; color: var(--cg); font-size: 1rem; }
+    .section-eyebrow::before { content: 'â€¢'; color: var(--cg); font-size: 1rem; }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
+    /* â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     @media (max-width: 1024px) {
       .stats-grid { grid-template-columns: repeat(3, 1fr); }
       .charts-grid { grid-template-columns: 1fr; }
@@ -667,13 +667,137 @@
       .stat-value { font-size: 1.5rem !important; }
     }
 
-    /* ── PRINT ───────────────────────────────────────────── */
+    /* â”€â”€ PRINT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     @media print {
       .nav, .tweaks-panel, .chart-actions, .nav-actions { display: none !important; }
       .shell { padding: 0; width: 100%; }
       body { background: white; }
       .hero, .controls-card, .chart-card, .stat-card { box-shadow: none !important; break-inside: avoid; }
       .charts-grid { grid-template-columns: 1fr; }
+    }
+    .group-dashboard {
+      margin-top: 24px;
+      padding: 28px;
+      border-radius: var(--r-lg);
+      background: var(--surface);
+      border: 1px solid var(--line2);
+      box-shadow: var(--sh);
+      transition: background 0.35s;
+    }
+    .group-dashboard-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    .group-dashboard-head h2 {
+      max-width: 18ch;
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .group-dashboard-copy,
+    .group-summary {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .group-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 16px;
+      max-width: 560px;
+      margin-bottom: 18px;
+    }
+    .group-controls .control-group span {
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    .category-toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .category-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .category-toggle input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--cg);
+    }
+    .category-swatch {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--category-color);
+    }
+    .group-chart-stack {
+      display: grid;
+      gap: 20px;
+      margin-top: 22px;
+    }
+    .group-chart-card {
+      box-shadow: none;
+      border-color: var(--line);
+    }
+    .group-series-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .group-line-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .chart-zone-label {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+    .chart-zone-bad {
+      fill: #9b1c31;
+    }
+    .chart-zone-good {
+      fill: #16723a;
+    }
+    .bar-row-label,
+    .bar-value-label {
+      fill: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+    .bar-value-label {
+      font-size: 0.86rem;
+    }
+    .abundance-positive {
+      fill: #37e01f;
+    }
+    .abundance-negative {
+      fill: #c40000;
+    }
+    @media (max-width: 940px) {
+      .group-dashboard-head {
+        flex-direction: column;
+      }
+      .group-controls,
+      .category-toggle-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -694,7 +818,7 @@
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.4"/><path d="M4 8v4h6V8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="6" width="10" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><circle cx="10.5" cy="8.5" r="0.7" fill="currentColor"/></svg>
         Print
       </button>
-      <button class="nav-btn nav-btn-primary" onclick="window.open('https://www.cis.org.au','_blank')">Visit CIS →</button>
+      <button class="nav-btn nav-btn-primary" onclick="window.open('https://www.cis.org.au','_blank')">Visit CIS â†’</button>
     </div>
   </nav>
 
@@ -708,13 +832,13 @@
           <h1 class="hero-h1">How affordable are the things Australians buy?</h1>
           <p class="hero-lead">
             Compare any tracked good or goods group against overall CPI and the Wage Price Index.
-            Built from ABS Table 18 — choose a series, set a time window, and see how price
+            Built from ABS Table 18 â€” choose a series, set a time window, and see how price
             movements diverge from broad inflation and wages.
           </p>
           <div class="hero-meta">
-            <span class="hero-meta-item"><span class="hero-meta-dot"></span> <span id="source-text">Loading ABS dataset…</span></span>
+            <span class="hero-meta-item"><span class="hero-meta-dot"></span> <span id="source-text">Loading ABS datasetâ€¦</span></span>
             <span class="hero-meta-item"><span class="hero-meta-dot"></span> Quarterly data</span>
-            <span class="hero-meta-item"><span class="hero-meta-dot"></span> WPI from Dec 2010</span>
+            <span class="hero-meta-item"><span class="hero-meta-dot"></span> WPI from Sep 1997</span>
           </div>
         </div>
         <div class="hero-panel">
@@ -726,7 +850,7 @@
           <div class="panel-divider"></div>
           <div>
             <div class="panel-label" style="margin-bottom:6px">Methodology</div>
-            <p style="font-size:0.78rem;color:var(--muted);line-height:1.55">Both series rebased to 1 at start date. Gap = selected − CPI change. Positive gap = less affordable than overall inflation.</p>
+            <p style="font-size:0.78rem;color:var(--muted);line-height:1.55">Both series rebased to 1 at start date. Gap = selected âˆ’ CPI change. Positive gap = less affordable than overall inflation.</p>
           </div>
         </div>
       </div>
@@ -832,7 +956,7 @@
           <p class="stat-label">All groups CPI</p>
           <button class="info-btn" type="button" data-info-toggle="cpi-info" aria-label="Info">i</button>
         </div>
-        <div id="cpi-info" class="info-popover">Overall consumer price change across the same period — the broad inflation benchmark. No colour coding applied to this figure.</div>
+        <div id="cpi-info" class="info-popover">Overall consumer price change across the same period â€” the broad inflation benchmark. No colour coding applied to this figure.</div>
         <h2 id="cpi-change" class="stat-value">--</h2>
         <p id="cpi-range" class="stat-footnote">Matched to the same period.</p>
       </article>
@@ -842,9 +966,9 @@
           <p class="stat-label">WPI change</p>
           <button class="info-btn" type="button" data-info-toggle="wpi-info" aria-label="Info">i</button>
         </div>
-        <div id="wpi-info" class="info-popover">Wage Price Index change over the same period — how fast wages grew. No colour coding applied. <strong>Note: wage data is only available from Q4 2010 (Dec 2010) onward.</strong></div>
+        <div id="wpi-info" class="info-popover">Wage Price Index change over the same period: how fast wages grew. No colour coding applied. Wage data follows the bundled WPI workbook.</div>
         <h2 id="wpi-change" class="stat-value">--</h2>
-        <p id="wpi-range" class="stat-footnote">Available from Dec 2010 onward.</p>
+        <p id="wpi-range" class="stat-footnote">Available from the WPI workbook start date onward.</p>
       </article>
 
       <article class="stat-card">
@@ -862,7 +986,7 @@
           <p class="stat-label">Relative to Wages</p>
           <button class="info-btn" type="button" data-info-toggle="gap-wpi-info" aria-label="Info">i</button>
         </div>
-        <div id="gap-wpi-info" class="info-popover">This good's price change <em>minus</em> Wage Price Index change over the same period.<br><br><span style="color:var(--good);font-weight:700">&#9679; Green</span> = good became <strong>more affordable</strong> relative to wages.<br><span style="color:var(--bad);font-weight:700">&#9679; Red</span> = good became <strong>less affordable</strong> relative to wages.<br><br><strong>Note: wage data is only available from Q4 2010 (Dec 2010) onward.</strong></div>
+        <div id="gap-wpi-info" class="info-popover">This good's price change <em>minus</em> Wage Price Index change over the same period.<br><br><span style="color:var(--good);font-weight:700">&#9679; Green</span> = good became <strong>more affordable</strong> relative to wages.<br><span style="color:var(--bad);font-weight:700">&#9679; Red</span> = good became <strong>less affordable</strong> relative to wages.<br><br>Wage data follows the bundled WPI workbook.</div>
         <h2 id="gap-wpi-change" class="stat-value">--</h2>
         <p id="gap-wpi-range" class="stat-footnote">Selected good minus WPI.</p>
       </article>
@@ -892,7 +1016,7 @@
             <p id="cpi-chart-subtitle" class="chart-subtitle">Both series rebased to 100 at start date.</p>
           </div>
         </div>
-        <div id="cpi-chart-info" class="info-popover">If the selected good line ends above the CPI line, it rose faster than overall inflation — meaning it became less affordable. Both series start at 100 at the chosen start date.</div>
+        <div id="cpi-chart-info" class="info-popover">If the selected good line ends above the CPI line, it rose faster than overall inflation â€” meaning it became less affordable. Both series start at 100 at the chosen start date.</div>
         <div class="chart-legend">
           <span><i class="legend-swatch legend-selected"></i><span id="legend-selected">Selected good</span></span>
           <span><i class="legend-swatch legend-cpi"></i>All groups CPI</span>
@@ -919,10 +1043,10 @@
           </div>
           <div class="chart-head-right">
             <button class="info-btn" type="button" data-info-toggle="wpi-chart-info" aria-label="Info">i</button>
-            <p id="wpi-chart-subtitle" class="chart-subtitle">Both series rebased to 100 at start date. Wage data from Q4 2010.</p>
+            <p id="wpi-chart-subtitle" class="chart-subtitle">Both series rebased to 100 at start date. Wage data follows the bundled WPI workbook.</p>
           </div>
         </div>
-        <div id="wpi-chart-info" class="info-popover">If the selected good line ends above the WPI line, it rose faster than wages — meaning it became less affordable relative to wage growth. <strong>Wage data (WPI) is only available from Q4 2010 (Dec 2010) onward.</strong></div>
+        <div id="wpi-chart-info" class="info-popover">If the selected good line ends above the WPI line, it rose faster than wages â€” meaning it became less affordable relative to wage growth. Wage data follows the bundled WPI workbook.</div>
         <div class="chart-legend">
           <span><i class="legend-swatch legend-selected"></i><span id="wpi-legend-selected">Selected good</span></span>
           <span id="wpi-legend"><i class="legend-swatch legend-wpi"></i>All sector WPI</span>
@@ -934,6 +1058,60 @@
         <p id="empty-state" class="empty-state">Pick a good or group to draw the comparison.</p>
       </article>
 
+    </section>
+
+    <section class="group-dashboard" aria-labelledby="group-dashboard-title">
+      <div class="group-dashboard-head">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-dot"></span> CPI groups</p>
+          <h2 id="group-dashboard-title">Australian inflation categories relative to wages</h2>
+          <p id="group-range-label" class="group-dashboard-copy">Choose a range and categories to compare.</p>
+        </div>
+        <button class="secondary-button" id="group-reset" type="button">Reset groups</button>
+      </div>
+
+      <div class="group-controls">
+        <label class="control-group">
+          <span>Start quarter</span>
+          <select id="group-start-date"></select>
+        </label>
+        <label class="control-group">
+          <span>End quarter</span>
+          <select id="group-end-date"></select>
+        </label>
+      </div>
+
+      <div class="category-toggle-grid" id="group-category-toggles" aria-label="CPI group toggles"></div>
+
+      <p id="group-summary" class="group-summary">The category comparison will appear after the workbook data loads.</p>
+
+      <div class="group-chart-stack">
+        <article class="chart-card group-chart-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> Category inflation</p>
+              <h2 class="chart-title">Cumulative change by CPI group</h2>
+            </div>
+            <p class="chart-subtitle">All selected groups, CPI and WPI start at 0% in the chosen start quarter.</p>
+          </div>
+          <div class="chart-frame">
+            <svg id="group-line-chart" viewBox="0 0 980 520" role="img" aria-label="Interactive line chart of CPI groups, CPI and WPI"></svg>
+          </div>
+        </article>
+
+        <article class="chart-card group-chart-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> Abundance</p>
+              <h2 class="chart-title">CPI groups relative to wages</h2>
+            </div>
+            <p class="chart-subtitle">Positive values mean wages grew faster than the category price index.</p>
+          </div>
+          <div class="chart-frame">
+            <svg id="group-abundance-chart" viewBox="0 0 980 520" role="img" aria-label="Interactive bar chart of CPI groups relative to wages"></svg>
+          </div>
+        </article>
+      </div>
     </section>
 
   </main>
@@ -960,9 +1138,10 @@
 
   <script src="data.js"></script>
   <script src="app.js?v=2"></script>
+  <script src="group-charts.js?v=1"></script>
 
   <script>
-  // ── EXTRAS ──────────────────────────────────────────────────────────────
+  // â”€â”€ EXTRAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
     "theme": "theme-light",
@@ -970,7 +1149,7 @@
   }/*EDITMODE-END*/;
   let tweaks = Object.assign({}, TWEAK_DEFAULTS);
 
-  // ── TWEAKS PANEL ────────────────────────────────────────────────────────
+  // â”€â”€ TWEAKS PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   window.addEventListener('message', e => {
     if (e.data && e.data.type === '__activate_edit_mode') document.getElementById('tweaks-panel').classList.add('open');
     if (e.data && e.data.type === '__deactivate_edit_mode') document.getElementById('tweaks-panel').classList.remove('open');
@@ -1012,7 +1191,7 @@
 
   applyTheme(tweaks.theme);
 
-  // ── SHARE (URL STATE) ────────────────────────────────────────────────────
+  // â”€â”€ SHARE (URL STATE) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function getState() {
     return {
       s: document.getElementById('series-search').value,
@@ -1044,7 +1223,7 @@
 
   function showShareCopied() {
     const btn = document.getElementById('btn-share');
-    btn.textContent = '✓ Copied!';
+    btn.textContent = 'âœ“ Copied!';
     setTimeout(() => { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.4"/><circle cx="3" cy="7" r="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M9.5 3.3 4.5 6.2M9.5 10.7 4.5 7.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Share'; }, 2000);
   }
   document.getElementById('btn-share').addEventListener('click', () => {
@@ -1068,10 +1247,10 @@
     document.getElementById(id)?.addEventListener('change', pushState);
   });
 
-  // ── PRINT ────────────────────────────────────────────────────────────────
+  // â”€â”€ PRINT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   document.getElementById('btn-print').addEventListener('click', () => window.print());
 
-  // ── HERO STAT UPDATE ─────────────────────────────────────────────────────
+  // â”€â”€ HERO STAT UPDATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Mirror gap-cpi-change into hero panel
   const observer = new MutationObserver(() => {
     const gap = document.getElementById('gap-cpi-change').textContent;
@@ -1082,11 +1261,11 @@
     heroStat.classList.remove('metric-positive','metric-negative','metric-neutral');
     const gapEl = document.getElementById('gap-cpi-change');
     ['metric-positive','metric-negative','metric-neutral'].forEach(c => { if(gapEl.classList.contains(c)) heroStat.classList.add(c); });
-    document.getElementById('hero-stat-label').textContent = label + ' gap vs CPI · ' + range;
+    document.getElementById('hero-stat-label').textContent = label + ' gap vs CPI Â· ' + range;
   });
   observer.observe(document.getElementById('gap-cpi-change'), { childList: true, characterData: true, subtree: true, attributes: true });
 
-  // ── CHART TOOLTIPS ────────────────────────────────────────────────────────
+  // â”€â”€ CHART TOOLTIPS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const CHART_MARGIN = { top: 24, right: 26, bottom: 48, left: 68 };
   const CHART_W = 920, CHART_H = 380;
 
@@ -1098,7 +1277,7 @@
   // Store rebased point data for tooltips
   window._chartData = { cpi: [], wpi: [] };
 
-  // ── QUARTER LEGEND TOGGLE ────────────────────────────────
+  // â”€â”€ QUARTER LEGEND TOGGLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const qInfoBtn = document.getElementById('q-info-start');
   const qLegend = document.getElementById('q-legend');
   if (qInfoBtn && qLegend) {
@@ -1109,7 +1288,7 @@
     document.addEventListener('click', () => qLegend.classList.remove('open'));
   }
 
-  // ── SVG MUTATION OBSERVER — add area fills when chart renders ──────────
+  // â”€â”€ SVG MUTATION OBSERVER â€” add area fills when chart renders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let _enhancing = false;
   function enhanceSVG(svgEl) {
     if (_enhancing) return;
@@ -1236,7 +1415,7 @@
     );
   }, 600);
 
-  // ── CHART DOWNLOAD PNG ────────────────────────────────────────────────────
+  // â”€â”€ CHART DOWNLOAD PNG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function downloadChartPng(svgId, filename) {
     const svg = document.getElementById(svgId);
     if (!svg || !svg.innerHTML.trim()) { alert('No chart to download yet.'); return; }
@@ -1268,7 +1447,7 @@
   document.getElementById('dl-btn-cpi').addEventListener('click', () => downloadChartPng('cpi-chart', 'cis-price-vs-cpi'));
   document.getElementById('dl-btn-wpi').addEventListener('click', () => downloadChartPng('wpi-chart', 'cis-price-vs-wpi'));
 
-  // ── ANNOTATIONS ──────────────────────────────────────────────────────────
+  // â”€â”€ ANNOTATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let annoMode = null;
   let annoCounts = { cpi: 0, wpi: 0 };
 
@@ -1309,7 +1488,7 @@
       const txt = document.createElement('textarea');
       txt.className = 'anno-input';
       txt.rows = 2;
-      txt.placeholder = 'Add a note…';
+      txt.placeholder = 'Add a noteâ€¦';
 
       const acts = document.createElement('div');
       acts.className = 'anno-actions';
@@ -1365,7 +1544,7 @@
   document.getElementById('anno-btn-cpi').addEventListener('click', () => setupAnnoMode('cpi'));
   document.getElementById('anno-btn-wpi').addEventListener('click', () => setupAnnoMode('wpi'));
 
-  // ── LOAD STATE FROM HASH ──────────────────────────────────────────────────
+  // â”€â”€ LOAD STATE FROM HASH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   window.addEventListener('load', () => {
     const saved = loadFromHash();
     if (saved) {
@@ -1378,3 +1557,4 @@
   </script>
 </body>
 </html>
+
