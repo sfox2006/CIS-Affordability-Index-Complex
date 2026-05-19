@@ -729,14 +729,70 @@
     }
     .group-controls {
       display: grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
       gap: 16px;
-      max-width: 560px;
+      max-width: 840px;
       margin-bottom: 18px;
     }
     .group-controls .control-group span {
       font-size: 0.92rem;
       font-weight: 700;
+    }
+    .group-timeline {
+      margin-bottom: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+    .group-timeline-head,
+    .group-timeline-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .group-timeline-head {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .group-timeline-head strong {
+      color: var(--ink);
+      font-size: 0.9rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .group-timeline input[type="range"] {
+      width: 100%;
+      accent-color: var(--cg);
+      cursor: pointer;
+    }
+    .preset-button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .preset-button {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      font: 800 0.8rem 'Manrope', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .preset-button:hover,
+    .preset-button.is-active {
+      border-color: var(--cg);
+      background: rgba(14,107,92,0.08);
+      color: var(--cg-dark);
     }
     .category-toggle-grid {
       display: grid;
@@ -783,6 +839,49 @@
     .group-chart-card {
       box-shadow: none;
       border-color: var(--line);
+    }
+    .group-ranking-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+    }
+    .ranking-index {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(14,107,92,0.1);
+      color: var(--cg);
+      font-weight: 900;
+      font-size: 0.76rem;
+    }
+    .ranking-label {
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .ranking-value {
+      font-weight: 900;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .ranking-value.positive {
+      color: var(--good);
+    }
+    .ranking-value.negative {
+      color: var(--bad);
     }
     .group-series-line {
       fill: none;
@@ -969,6 +1068,10 @@
       .personal-abundance-controls.two-col,
       .personal-abundance-controls.one-col {
         grid-template-columns: 1fr;
+      }
+      .group-timeline-controls {
+        align-items: stretch;
+        flex-direction: column;
       }
     }
   </style>
@@ -1332,6 +1435,34 @@
           <span>End quarter</span>
           <select id="group-end-date"></select>
         </label>
+        <label class="control-group">
+          <span>View</span>
+          <select id="group-relative-mode">
+            <option value="price">Price change</option>
+            <option value="cpi">Relative to CPI</option>
+            <option value="wages">Relative to wages</option>
+            <option value="abundance">Abundance</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="group-timeline" aria-label="Timeline controls">
+        <div class="group-timeline-head">
+          <span>Timeline</span>
+          <strong id="group-slider-label">End quarter</strong>
+        </div>
+        <div class="group-timeline-controls">
+          <input id="group-end-slider" type="range" min="0" max="0" value="0" step="1" aria-label="End quarter timeline">
+          <button class="secondary-button" id="group-play" type="button">Play</button>
+        </div>
+      </div>
+
+      <div class="preset-button-row" aria-label="Quick view presets">
+        <button class="preset-button" data-preset="essentials" type="button">Essentials</button>
+        <button class="preset-button" data-preset="services" type="button">Services</button>
+        <button class="preset-button" data-preset="goods" type="button">Goods</button>
+        <button class="preset-button" data-preset="pressure" type="button">Biggest pressures</button>
+        <button class="preset-button" data-preset="improvement" type="button">Most improved</button>
       </div>
 
       <div class="category-toggle-grid" id="group-category-toggles" aria-label="CPI group toggles"></div>
@@ -1345,12 +1476,23 @@
               <p class="eyebrow"><span class="eyebrow-dot"></span> Category inflation</p>
               <h2 class="chart-title">Cumulative change by CPI group</h2>
             </div>
-            <p class="chart-subtitle">All selected groups, CPI and WPI start at 0% in the chosen start quarter.</p>
+            <p class="chart-subtitle" id="group-mode-note">All selected groups, CPI and WPI start at 0% in the chosen start quarter.</p>
           </div>
           <div class="chart-frame">
             <svg id="group-line-chart" viewBox="0 0 980 520" role="img" aria-label="Interactive line chart of CPI groups, CPI and WPI"></svg>
             <div class="chart-tooltip" id="group-line-tooltip"></div>
           </div>
+        </article>
+
+        <article class="chart-card group-chart-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> Ranking</p>
+              <h2 class="chart-title" id="group-ranking-title">Current ranking</h2>
+            </div>
+            <p class="chart-subtitle" id="group-ranking-note">Sorted by the selected view and end quarter.</p>
+          </div>
+          <div class="group-ranking-list" id="group-ranking-list"></div>
         </article>
       </div>
     </section>

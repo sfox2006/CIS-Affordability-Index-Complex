@@ -1,5 +1,8 @@
 const groupChartState = {
   selectedIds: new Set(),
+  mode: "price",
+  activePreset: "",
+  playTimer: null,
 };
 
 const GROUP_EXCLUDED_DEFAULTS = new Set(["A2332596F"]);
@@ -17,6 +20,41 @@ const GROUP_PALETTE = [
   "#0e6b5c",
   "#0b6ea8",
 ];
+
+const GROUP_MODE_COPY = {
+  price: {
+    title: "Cumulative change by CPI group",
+    note: "All selected groups, CPI and WPI start at 0% in the chosen start quarter.",
+    rankingTitle: "Biggest cumulative changes",
+    rankingNote: "Sorted by price change over the selected range.",
+  },
+  cpi: {
+    title: "CPI groups relative to overall CPI",
+    note: "Values show how far each selected group moved above or below overall inflation.",
+    rankingTitle: "Furthest from overall CPI",
+    rankingNote: "Positive values rose faster than overall CPI.",
+  },
+  wages: {
+    title: "CPI groups relative to wages",
+    note: "Values show whether category prices rose faster or slower than the Wage Price Index.",
+    rankingTitle: "Furthest from wage growth",
+    rankingNote: "Positive values mean prices rose faster than wages.",
+  },
+  abundance: {
+    title: "Abundance relative to wages",
+    note: "Positive values mean wages grew faster than the category price index.",
+    rankingTitle: "Most abundant relative to wages",
+    rankingNote: "Positive values mean the category became more abundant.",
+  },
+};
+
+const GROUP_PRESETS = {
+  essentials: ["Food and non-alcoholic beverages", "Housing", "Health", "Transport", "Education"],
+  services: ["Housing", "Health", "Education", "Insurance and financial services", "Recreation and culture", "Communication"],
+  goods: ["Food and non-alcoholic beverages", "Alcohol and tobacco", "Clothing and footwear", "Furnishings, household equipment and services"],
+  pressure: ["Alcohol and tobacco", "Education", "Health", "Housing"],
+  improvement: ["Communication", "Clothing and footwear", "Furnishings, household equipment and services", "Recreation and culture", "Transport"],
+};
 
 function groupFormatQuarter(dateString) {
   const date = new Date(`${dateString}T00:00:00`);
@@ -38,8 +76,26 @@ function groupShortLabel(label, maxLength = 28) {
   return label.length > maxLength ? `${label.slice(0, maxLength - 1)}...` : label;
 }
 
-function groupPointVerdict(line, value) {
+function groupPointVerdict(line, value, mode = groupChartState.mode) {
   if (!Number.isFinite(value)) return "No reading is available for this point.";
+  if (mode === "abundance") {
+    if (line.id === "wpi") return "Wages are the benchmark for abundance in this view.";
+    if (value > 0) return `${line.label} became ${groupFormatAbsPercent(value)} more abundant relative to wages.`;
+    if (value < 0) return `${line.label} became ${groupFormatAbsPercent(value)} less abundant relative to wages.`;
+    return `${line.label} is unchanged relative to wages.`;
+  }
+  if (mode === "wages") {
+    if (line.id === "wpi") return "Wages are the 0% benchmark in this view.";
+    if (value > 0) return `${line.label} rose ${groupFormatAbsPercent(value)} faster than wages.`;
+    if (value < 0) return `${line.label} rose ${groupFormatAbsPercent(value)} slower than wages.`;
+    return `${line.label} moved in line with wages.`;
+  }
+  if (mode === "cpi") {
+    if (line.id === "cpi") return "Overall CPI is the 0% benchmark in this view.";
+    if (value > 0) return `${line.label} rose ${groupFormatAbsPercent(value)} faster than overall CPI.`;
+    if (value < 0) return `${line.label} rose ${groupFormatAbsPercent(value)} slower than overall CPI.`;
+    return `${line.label} moved in line with overall CPI.`;
+  }
   if (line.id === "wpi") {
     if (value > 0) return `Wages are ${groupFormatAbsPercent(value)} higher than at the start quarter.`;
     if (value < 0) return `Wages are ${groupFormatAbsPercent(value)} lower than at the start quarter.`;
@@ -114,6 +170,63 @@ function fillGroupDateSelects() {
   } else if (dates.length) {
     endSelect.value = dates[dates.length - 1];
   }
+  syncGroupTimeline();
+}
+
+function syncGroupTimeline() {
+  const dates = sharedGroupDates(true);
+  const slider = document.getElementById("group-end-slider");
+  const label = document.getElementById("group-slider-label");
+  const endSelect = document.getElementById("group-end-date");
+  if (!slider || !endSelect) return;
+  const currentIndex = Math.max(0, dates.indexOf(endSelect.value));
+  slider.max = String(Math.max(0, dates.length - 1));
+  slider.value = String(currentIndex);
+  slider.disabled = dates.length < 2;
+  if (label) {
+    label.textContent = dates[currentIndex] ? groupFormatQuarter(dates[currentIndex]) : "End quarter";
+  }
+}
+
+function stopGroupPlayback() {
+  if (groupChartState.playTimer) {
+    window.clearInterval(groupChartState.playTimer);
+    groupChartState.playTimer = null;
+  }
+  const playButton = document.getElementById("group-play");
+  if (playButton) playButton.textContent = "Play";
+}
+
+function stepGroupTimeline() {
+  const dates = sharedGroupDates(true);
+  const slider = document.getElementById("group-end-slider");
+  const endSelect = document.getElementById("group-end-date");
+  if (!slider || !endSelect || dates.length < 2) return false;
+  const nextIndex = Math.min(Number(slider.value || 0) + 1, dates.length - 1);
+  slider.value = String(nextIndex);
+  endSelect.value = dates[nextIndex];
+  syncGroupTimeline();
+  renderGroupCharts({ keepPlayback: true });
+  return nextIndex < dates.length - 1;
+}
+
+function toggleGroupPlayback() {
+  if (groupChartState.playTimer) {
+    stopGroupPlayback();
+    return;
+  }
+  const dates = sharedGroupDates(true);
+  const slider = document.getElementById("group-end-slider");
+  if (!slider || dates.length < 2) return;
+  if (Number(slider.value) >= dates.length - 1) {
+    slider.value = "0";
+    document.getElementById("group-end-date").value = dates[0];
+  }
+  const playButton = document.getElementById("group-play");
+  if (playButton) playButton.textContent = "Pause";
+  groupChartState.playTimer = window.setInterval(() => {
+    if (!stepGroupTimeline()) stopGroupPlayback();
+  }, 450);
 }
 
 function createGroupToggles() {
@@ -155,6 +268,8 @@ function createGroupToggles() {
     } else {
       groupChartState.selectedIds.delete(input.value);
     }
+    groupChartState.activePreset = "";
+    updatePresetButtons();
     fillGroupDateSelects();
     renderGroupCharts();
   });
@@ -171,10 +286,35 @@ function setSelectedGroups(mode) {
       series.filter((item) => !GROUP_EXCLUDED_DEFAULTS.has(item.seriesId)).map((item) => item.seriesId)
     );
   }
+  groupChartState.activePreset = "";
 
   document.querySelectorAll("#group-category-toggles input[type='checkbox']").forEach((input) => {
     input.checked = groupChartState.selectedIds.has(input.value);
   });
+  updatePresetButtons();
+  fillGroupDateSelects();
+  renderGroupCharts();
+}
+
+function updatePresetButtons() {
+  document.querySelectorAll(".preset-button").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.preset === groupChartState.activePreset);
+  });
+}
+
+function applyGroupPreset(preset) {
+  const labels = GROUP_PRESETS[preset] || [];
+  const wanted = new Set(labels.map((label) => label.toLowerCase()));
+  groupChartState.selectedIds = new Set(
+    groupSeries()
+      .filter((series) => wanted.has(series.label.toLowerCase()))
+      .map((series) => series.seriesId)
+  );
+  groupChartState.activePreset = preset;
+  document.querySelectorAll("#group-category-toggles input[type='checkbox']").forEach((input) => {
+    input.checked = groupChartState.selectedIds.has(input.value);
+  });
+  updatePresetButtons();
   fillGroupDateSelects();
   renderGroupCharts();
 }
@@ -194,6 +334,23 @@ function percentChange(startValue, endValue) {
   return ((endValue - startValue) / startValue) * 100;
 }
 
+function ratioChange(ratio) {
+  if (!Number.isFinite(ratio)) return null;
+  return (ratio - 1) * 100;
+}
+
+function metricValue(priceStart, priceEnd, cpiStart, cpiEnd, wageStart, wageEnd, mode = groupChartState.mode) {
+  if (![priceStart, priceEnd].every(Number.isFinite) || priceStart === 0) return null;
+  const priceRatio = priceEnd / priceStart;
+  const cpiRatio = Number.isFinite(cpiStart) && Number.isFinite(cpiEnd) && cpiStart !== 0 ? cpiEnd / cpiStart : null;
+  const wageRatio = Number.isFinite(wageStart) && Number.isFinite(wageEnd) && wageStart !== 0 ? wageEnd / wageStart : null;
+
+  if (mode === "cpi") return ratioChange(priceRatio / cpiRatio);
+  if (mode === "wages") return ratioChange(priceRatio / wageRatio);
+  if (mode === "abundance") return ratioChange(wageRatio / priceRatio);
+  return ratioChange(priceRatio);
+}
+
 function buildLineSeries(start, end) {
   const selected = groupSeries().filter((series) => groupChartState.selectedIds.has(series.seriesId));
   const cpi = groupOverallCpi();
@@ -206,6 +363,8 @@ function buildLineSeries(start, end) {
 
   if (!startDate || !endDate) return { dates: [], lines: [] };
 
+  const cpiStart = cpiLookup.get(startDate);
+  const wageStart = wpiLookup.get(startDate);
   const lines = selectedLookups.map((item, index) => {
     const base = item.lookup.get(startDate);
     return {
@@ -216,7 +375,7 @@ function buildLineSeries(start, end) {
         .filter((date) => item.lookup.has(date))
         .map((date) => ({
           date,
-          value: percentChange(base, item.lookup.get(date)),
+          value: metricValue(base, item.lookup.get(date), cpiStart, cpiLookup.get(date), wageStart, wpiLookup.get(date)),
         })),
     };
   });
@@ -228,7 +387,7 @@ function buildLineSeries(start, end) {
     strokeDasharray: "8 8",
     values: dates.map((date) => ({
       date,
-      value: percentChange(cpiLookup.get(startDate), cpiLookup.get(date)),
+      value: metricValue(cpiStart, cpiLookup.get(date), cpiStart, cpiLookup.get(date), wageStart, wpiLookup.get(date)),
     })),
   });
 
@@ -239,7 +398,7 @@ function buildLineSeries(start, end) {
     strokeWidth: 4,
     values: dates.map((date) => ({
       date,
-      value: percentChange(wpiLookup.get(startDate), wpiLookup.get(date)),
+      value: metricValue(wageStart, wpiLookup.get(date), cpiStart, cpiLookup.get(date), wageStart, wpiLookup.get(date)),
     })),
   });
 
@@ -265,6 +424,12 @@ function renderGroupLineChart(start, end) {
   const svg = document.getElementById("group-line-chart");
   if (!svg) return;
 
+  const copy = GROUP_MODE_COPY[groupChartState.mode] || GROUP_MODE_COPY.price;
+  const title = svg.closest(".chart-card")?.querySelector(".chart-title");
+  const note = document.getElementById("group-mode-note");
+  if (title) title.textContent = copy.title;
+  if (note) note.textContent = copy.note;
+
   const { dates, lines } = buildLineSeries(start, end);
   const values = lines.flatMap((line) => line.values.map((point) => point.value).filter(Number.isFinite));
   if (dates.length < 2 || values.length < 2) {
@@ -275,8 +440,10 @@ function renderGroupLineChart(start, end) {
   const width = 980;
   const height = 520;
   const margin = { top: 34, right: 250, bottom: 58, left: 74 };
-  const minValue = Math.min(0, Math.min(...values));
-  const maxValue = Math.max(...values) * 1.08;
+  const rawMin = Math.min(0, Math.min(...values));
+  const rawMax = Math.max(0, Math.max(...values));
+  const minValue = rawMin < 0 ? rawMin * 1.08 : 0;
+  const maxValue = rawMax > 0 ? rawMax * 1.08 : 1;
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const tickCount = 6;
@@ -333,7 +500,7 @@ function renderGroupLineChart(start, end) {
       if (!isFiveYearPoint) return "";
       const pointX = margin.left + (line.values.length > 1 ? (plotWidth / (line.values.length - 1)) * pointIndex : plotWidth / 2);
       const pointY = margin.top + plotHeight - ((point.value - minValue) / (maxValue - minValue || 1)) * plotHeight;
-      const verdict = groupPointVerdict(line, point.value);
+      const verdict = groupPointVerdict(line, point.value, groupChartState.mode);
       const title = `${groupFormatQuarter(point.date)}\n${line.label}: ${groupFormatPercent(point.value)} since start quarter\n${verdict}`;
       return `
         <g class="group-point-group"
@@ -427,7 +594,7 @@ function showGroupLineTooltip(group) {
       <span class="tooltip-val">${group.dataset.change || "--"}</span>
     </div>
     <div class="tooltip-verdict">${group.dataset.verdict || "Cumulative change since the selected start quarter."}</div>
-    <div class="tooltip-note">Five-year marker. Cumulative change since the selected start quarter.</div>
+    <div class="tooltip-note">Five-year marker. ${GROUP_MODE_COPY[groupChartState.mode]?.note || "Cumulative change since the selected start quarter."}</div>
   `;
   tooltip.style.left = `${tooltipLeft}px`;
   tooltip.style.top = `${Math.max(10, topPx - 48)}px`;
@@ -525,30 +692,85 @@ function renderAbundanceChart(start, end) {
   `;
 }
 
+function buildRankingRows(start, end) {
+  const wpi = groupWpiLookup();
+  const cpi = groupOverallCpi();
+  const cpiLookup = pointLookup(cpi);
+  const cpiStart = cpiLookup.get(start);
+  const cpiEnd = cpiLookup.get(end);
+  const wageStart = wpi.get(start);
+  const wageEnd = wpi.get(end);
+  return groupSeries()
+    .filter((series) => groupChartState.selectedIds.has(series.seriesId))
+    .map((series) => {
+      const lookup = pointLookup(series);
+      return {
+        label: series.label,
+        value: metricValue(lookup.get(start), lookup.get(end), cpiStart, cpiEnd, wageStart, wageEnd),
+      };
+    })
+    .filter((row) => Number.isFinite(row.value))
+    .sort((a, b) => b.value - a.value);
+}
+
+function renderGroupRanking(start, end) {
+  const target = document.getElementById("group-ranking-list");
+  const title = document.getElementById("group-ranking-title");
+  const note = document.getElementById("group-ranking-note");
+  if (!target) return;
+  const copy = GROUP_MODE_COPY[groupChartState.mode] || GROUP_MODE_COPY.price;
+  if (title) title.textContent = copy.rankingTitle;
+  if (note) note.textContent = copy.rankingNote;
+  const rows = buildRankingRows(start, end);
+  if (!rows.length) {
+    target.innerHTML = '<p class="empty-state">Select one or more CPI groups to rank them.</p>';
+    return;
+  }
+  target.innerHTML = rows.slice(0, 10).map((row, index) => `
+    <div class="ranking-row">
+      <span class="ranking-index">${index + 1}</span>
+      <span class="ranking-label">${escapeGroupAttribute(row.label)}</span>
+      <span class="ranking-value ${row.value > 0 ? "positive" : row.value < 0 ? "negative" : ""}">${groupFormatPercent(row.value)}</span>
+    </div>
+  `).join("");
+}
+
 function updateGroupSummary(start, end) {
   const summary = document.getElementById("group-summary");
   const range = document.getElementById("group-range-label");
-  const rows = buildAbundanceRows(start, end);
+  const rows = buildRankingRows(start, end);
   if (range) {
     range.textContent = `${groupFormatQuarter(start)} to ${groupFormatQuarter(end)}. WPI source: ${window.WPI_METADATA?.seriesId || "WPI"}.`;
   }
-  if (!summary || !rows.length) return;
-  const categoryRows = rows.filter((row) => row.label !== "Overall products and services");
-  if (!categoryRows.length) {
-    summary.textContent = "Select one or more CPI groups to compare them with CPI and wages.";
+  if (!summary) return;
+  if (!rows.length) {
+    summary.textContent = "Select one or more CPI groups to compare them over the chosen range.";
     return;
   }
-  const moreAffordable = categoryRows.filter((row) => row.value > 0).length;
-  const lessAffordable = categoryRows.filter((row) => row.value < 0).length;
-  const best = categoryRows[0];
-  const worst = categoryRows[categoryRows.length - 1];
-  summary.textContent = `Among selected CPI groups, ${moreAffordable} became more affordable relative to wages and ${lessAffordable} became less affordable. Biggest improvement: ${best.label} (${groupFormatPercent(best.value)}). Biggest pressure: ${worst.label} (${groupFormatPercent(worst.value)}).`;
+  const high = rows[0];
+  const low = rows[rows.length - 1];
+  const positives = rows.filter((row) => row.value > 0).length;
+  const negatives = rows.filter((row) => row.value < 0).length;
+  if (groupChartState.mode === "abundance") {
+    summary.textContent = `${positives} selected groups became more abundant relative to wages and ${negatives} became less abundant. Strongest abundance gain: ${high.label} (${groupFormatPercent(high.value)}). Biggest decline: ${low.label} (${groupFormatPercent(low.value)}).`;
+    return;
+  }
+  if (groupChartState.mode === "wages") {
+    summary.textContent = `${positives} selected groups rose faster than wages and ${negatives} rose slower than wages. Highest pressure: ${high.label} (${groupFormatPercent(high.value)}). Lowest pressure: ${low.label} (${groupFormatPercent(low.value)}).`;
+    return;
+  }
+  if (groupChartState.mode === "cpi") {
+    summary.textContent = `${positives} selected groups rose faster than CPI and ${negatives} rose slower than CPI. Biggest CPI outlier: ${high.label} (${groupFormatPercent(high.value)}). Lowest relative change: ${low.label} (${groupFormatPercent(low.value)}).`;
+    return;
+  }
+  summary.textContent = `Highest selected price change: ${high.label} (${groupFormatPercent(high.value)}). Lowest selected price change: ${low.label} (${groupFormatPercent(low.value)}).`;
 }
 
-function renderGroupCharts() {
+function renderGroupCharts(options = {}) {
   const { start, end } = getRangeDates();
   if (!start || !end) return;
 
+  if (!options.keepPlayback) stopGroupPlayback();
   const startSelect = document.getElementById("group-start-date");
   const endSelect = document.getElementById("group-end-date");
   if (start > end) {
@@ -556,8 +778,9 @@ function renderGroupCharts() {
   }
 
   const range = getRangeDates();
+  syncGroupTimeline();
   renderGroupLineChart(range.start, range.end);
-  renderAbundanceChart(range.start, range.end);
+  renderGroupRanking(range.start, range.end);
   updateGroupSummary(range.start, range.end);
 }
 
@@ -567,6 +790,22 @@ function initGroupCharts() {
   fillGroupDateSelects();
   document.getElementById("group-start-date")?.addEventListener("change", renderGroupCharts);
   document.getElementById("group-end-date")?.addEventListener("change", renderGroupCharts);
+  document.getElementById("group-relative-mode")?.addEventListener("change", (event) => {
+    groupChartState.mode = event.target.value;
+    renderGroupCharts();
+  });
+  document.getElementById("group-end-slider")?.addEventListener("input", (event) => {
+    const dates = sharedGroupDates(true);
+    const date = dates[Number(event.target.value || 0)];
+    if (!date) return;
+    const endSelect = document.getElementById("group-end-date");
+    if (endSelect) endSelect.value = date;
+    renderGroupCharts();
+  });
+  document.getElementById("group-play")?.addEventListener("click", toggleGroupPlayback);
+  document.querySelectorAll(".preset-button").forEach((button) => {
+    button.addEventListener("click", () => applyGroupPreset(button.dataset.preset));
+  });
   document.getElementById("group-reset")?.addEventListener("click", () => {
     setSelectedGroups("default");
   });
