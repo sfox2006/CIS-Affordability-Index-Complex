@@ -834,6 +834,77 @@
     .abundance-negative {
       fill: #c40000;
     }
+    .personal-abundance-section {
+      margin-top: 24px;
+      padding: 28px;
+      border-radius: var(--r-lg);
+      background: var(--surface);
+      border: 1px solid var(--line2);
+      box-shadow: var(--sh);
+      transition: background 0.35s;
+    }
+    .personal-abundance-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 22px;
+    }
+    .personal-abundance-card {
+      box-shadow: none;
+      border-color: var(--line);
+    }
+    .personal-abundance-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .personal-abundance-controls.two-col {
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      max-width: 640px;
+    }
+    .personal-abundance-controls.one-col {
+      grid-template-columns: minmax(180px, 420px);
+    }
+    .abundance-result {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .abundance-result span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .abundance-result strong {
+      display: block;
+      margin-top: 4px;
+      font-family: 'Fraunces', serif;
+      font-size: 1.9rem;
+      line-height: 1;
+      color: var(--cg-dark);
+    }
+    .abundance-result p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .abundance-bar-row {
+      cursor: pointer;
+    }
+    .abundance-bar-row rect {
+      transition: opacity 0.12s ease, stroke-width 0.12s ease;
+    }
+    .abundance-bar-row:hover rect,
+    .abundance-bar-row.is-selected rect {
+      stroke: var(--ink);
+      stroke-width: 2;
+      opacity: 0.9;
+    }
     @media (max-width: 940px) {
       .group-dashboard-head {
         flex-direction: column;
@@ -842,7 +913,10 @@
         justify-content: flex-start;
       }
       .group-controls,
-      .category-toggle-grid {
+      .category-toggle-grid,
+      .personal-abundance-controls,
+      .personal-abundance-controls.two-col,
+      .personal-abundance-controls.one-col {
         grid-template-columns: 1fr;
       }
     }
@@ -1107,6 +1181,89 @@
 
     </section>
 
+    <section class="personal-abundance-section" aria-labelledby="personal-abundance-title">
+      <div class="group-dashboard-head">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Personal abundance</p>
+          <h2 id="personal-abundance-title">Goods relative to wages</h2>
+          <p class="group-dashboard-copy">Select a good to see the percentage change in abundance. Positive values mean the good became more abundant relative to wages.</p>
+        </div>
+      </div>
+
+      <div class="personal-abundance-grid">
+        <article class="chart-card personal-abundance-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> Trade wage</p>
+              <h2 class="chart-title">Australia electrician wage abundance</h2>
+            </div>
+            <p class="chart-subtitle">Australia electrician wage, 1973-2023.</p>
+          </div>
+          <div class="personal-abundance-controls one-col">
+            <label class="control-group">
+              <span>Good or service</span>
+              <select id="electrician-good-select"></select>
+            </label>
+          </div>
+          <div class="abundance-result" id="electrician-result"></div>
+          <div class="chart-frame">
+            <svg id="electrician-abundance-chart" viewBox="0 0 980 720" role="img" aria-label="Interactive bar chart of electrician wage abundance"></svg>
+          </div>
+        </article>
+
+        <article class="chart-card personal-abundance-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> National</p>
+              <h2 class="chart-title">Australia average full-time wage abundance</h2>
+            </div>
+            <p class="chart-subtitle">National goods relative to average full-time wages, 1901-2000.</p>
+          </div>
+          <div class="personal-abundance-controls one-col">
+            <label class="control-group">
+              <span>Good or service</span>
+              <select id="national-good-select"></select>
+            </label>
+          </div>
+          <div class="abundance-result" id="national-result"></div>
+          <div class="chart-frame">
+            <svg id="national-abundance-chart" viewBox="0 0 980 680" role="img" aria-label="Interactive national bar chart of abundance relative to wages"></svg>
+          </div>
+        </article>
+
+        <article class="chart-card personal-abundance-card">
+          <div class="chart-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-dot"></span> States</p>
+              <h2 class="chart-title">State wage abundance</h2>
+            </div>
+            <p class="chart-subtitle">Choose a state, wage group and good to compare abundance.</p>
+          </div>
+          <div class="personal-abundance-controls">
+            <label class="control-group">
+              <span>State or territory</span>
+              <select id="state-abundance-select"></select>
+            </label>
+            <label class="control-group">
+              <span>Wage group</span>
+              <select id="state-wage-select">
+                <option value="men">Male average full-time wage</option>
+                <option value="women">Female average full-time wage</option>
+              </select>
+            </label>
+            <label class="control-group">
+              <span>Good</span>
+              <select id="state-good-select"></select>
+            </label>
+          </div>
+          <div class="abundance-result" id="state-result"></div>
+          <div class="chart-frame">
+            <svg id="state-abundance-chart" viewBox="0 0 980 760" role="img" aria-label="Interactive state bar chart of abundance relative to wages"></svg>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="group-dashboard" aria-labelledby="group-dashboard-title">
       <div class="group-dashboard-head">
         <div>
@@ -1190,6 +1347,8 @@
 
   <script src="data.js"></script>
   <script src="app.js?v=2"></script>
+  <script src="abundance-data.js"></script>
+  <script src="abundance-interactive.js?v=1"></script>
   <script src="group-charts.js?v=3"></script>
 
   <script>
