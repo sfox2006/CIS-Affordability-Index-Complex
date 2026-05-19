@@ -735,8 +735,38 @@
       margin-bottom: 18px;
     }
     .group-controls .control-group span {
-      font-size: 0.92rem;
-      font-weight: 700;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .group-controls select {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 42px 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background-color: var(--surface2);
+      background-image: linear-gradient(45deg, transparent 50%, var(--cg) 50%), linear-gradient(135deg, var(--cg) 50%, transparent 50%);
+      background-position: calc(100% - 19px) 19px, calc(100% - 13px) 19px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      color: var(--ink);
+      font: 700 0.92rem 'Manrope', sans-serif;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .group-controls select:hover {
+      border-color: rgba(14,107,92,0.35);
+      background-color: var(--surface);
+    }
+    .group-controls select:focus {
+      outline: none;
+      border-color: var(--cg);
+      box-shadow: 0 0 0 3px rgba(14,107,92,0.14);
+      background-color: var(--surface);
     }
     .group-timeline {
       margin-bottom: 18px;
