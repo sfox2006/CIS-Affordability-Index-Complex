@@ -694,6 +694,71 @@ body {
   grid-template-columns: minmax(180px, 420px);
 }
 
+.personal-abundance-controls .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.personal-abundance-controls .control-group span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.personal-abundance-controls select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 42px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background-color: rgba(247, 250, 248, 0.96);
+  background-image: linear-gradient(45deg, transparent 50%, var(--navy) 50%), linear-gradient(135deg, var(--navy) 50%, transparent 50%);
+  background-position: calc(100% - 19px) 19px, calc(100% - 13px) 19px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font: 700 0.92rem "Manrope", sans-serif;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.personal-abundance-controls select:hover {
+  border-color: rgba(14, 107, 92, 0.35);
+  background-color: #ffffff;
+}
+
+.personal-abundance-controls select:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(14, 107, 92, 0.14);
+  background-color: #ffffff;
+}
+
+.abundance-explainer {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.abundance-explainer strong {
+  color: var(--ink);
+}
+
+.abundance-explainer a {
+  color: var(--navy);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(14, 107, 92, 0.28);
+}
+
 .abundance-result {
   margin-top: 16px;
   padding: 14px 16px;

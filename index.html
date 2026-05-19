@@ -865,6 +865,63 @@
     .personal-abundance-controls.one-col {
       grid-template-columns: minmax(180px, 420px);
     }
+    .personal-abundance-controls .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .personal-abundance-controls .control-group span {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .personal-abundance-controls select {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 42px 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background-color: var(--surface2);
+      background-image: linear-gradient(45deg, transparent 50%, var(--cg) 50%), linear-gradient(135deg, var(--cg) 50%, transparent 50%);
+      background-position: calc(100% - 19px) 19px, calc(100% - 13px) 19px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      color: var(--ink);
+      font: 700 0.92rem 'Manrope', sans-serif;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .personal-abundance-controls select:hover {
+      border-color: rgba(14,107,92,0.35);
+      background-color: var(--surface);
+    }
+    .personal-abundance-controls select:focus {
+      outline: none;
+      border-color: var(--cg);
+      box-shadow: 0 0 0 3px rgba(14,107,92,0.14);
+      background-color: var(--surface);
+    }
+    .abundance-explainer {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .abundance-explainer strong {
+      color: var(--ink);
+    }
+    .abundance-explainer a {
+      color: var(--cg);
+      font-weight: 800;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(14,107,92,0.28);
+    }
     .abundance-result {
       margin-top: 16px;
       padding: 14px 16px;
@@ -1181,6 +1238,9 @@
           <p class="eyebrow"><span class="eyebrow-dot"></span> Personal abundance</p>
           <h2 id="personal-abundance-title">Goods relative to wages</h2>
           <p class="group-dashboard-copy">Select a good to see the percentage change in abundance. Positive values mean the good became more abundant relative to wages.</p>
+          <p class="abundance-explainer">
+            In the approach popularised by Marian L. Tupy at the Cato Institute, abundance is measured with <strong>time prices</strong>: how long a person must work to buy a good or service. If wages rise faster than the price of that good, it takes less work time to buy it, so it has become more abundant. If it takes more work time, it has become less abundant. See Cato's discussion of <a href="https://www.cato.org/publications/superabundance-free-exchange" target="_blank" rel="noopener">superabundance and time prices</a>.
+          </p>
         </div>
       </div>
 
