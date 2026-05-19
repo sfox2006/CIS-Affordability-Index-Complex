@@ -118,7 +118,19 @@ function createGroupToggles() {
     </label>
   `).join("");
 
-  target.addEventListener("change", (event) => {
+  target.replaceWith(target.cloneNode(true));
+  const refreshedTarget = document.getElementById("group-category-toggles");
+  refreshedTarget.addEventListener("click", (event) => {
+    const tile = event.target.closest(".category-toggle");
+    if (!tile || event.target.matches("input")) return;
+    event.preventDefault();
+    const input = tile.querySelector("input");
+    if (!input) return;
+    input.checked = !input.checked;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  refreshedTarget.addEventListener("change", (event) => {
     const input = event.target.closest("input[type='checkbox']");
     if (!input) return;
     if (input.checked) {
@@ -129,6 +141,25 @@ function createGroupToggles() {
     fillGroupDateSelects();
     renderGroupCharts();
   });
+}
+
+function setSelectedGroups(mode) {
+  const series = groupSeries();
+  if (mode === "all") {
+    groupChartState.selectedIds = new Set(series.map((item) => item.seriesId));
+  } else if (mode === "none") {
+    groupChartState.selectedIds = new Set();
+  } else {
+    groupChartState.selectedIds = new Set(
+      series.filter((item) => !GROUP_EXCLUDED_DEFAULTS.has(item.seriesId)).map((item) => item.seriesId)
+    );
+  }
+
+  document.querySelectorAll("#group-category-toggles input[type='checkbox']").forEach((input) => {
+    input.checked = groupChartState.selectedIds.has(input.value);
+  });
+  fillGroupDateSelects();
+  renderGroupCharts();
 }
 
 function getRangeDates() {
@@ -328,6 +359,28 @@ function hideGroupLineTooltip() {
   svg?.querySelectorAll(".group-point-group.is-active").forEach((item) => item.classList.remove("is-active"));
 }
 
+function findNearestGroupPoint(event, svg) {
+  const rect = svg.getBoundingClientRect();
+  const svgX = ((event.clientX - rect.left) / rect.width) * 980;
+  const svgY = ((event.clientY - rect.top) / rect.height) * 520;
+  let best = null;
+  let bestDistance = Infinity;
+
+  svg.querySelectorAll(".group-point-group").forEach((group) => {
+    const pointX = Number(group.dataset.x || 0);
+    const pointY = Number(group.dataset.y || 0);
+    const dx = pointX - svgX;
+    const dy = pointY - svgY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < bestDistance) {
+      best = group;
+      bestDistance = distance;
+    }
+  });
+
+  return bestDistance <= 18 ? best : null;
+}
+
 function showGroupLineTooltip(group) {
   const svg = document.getElementById("group-line-chart");
   const tooltip = document.getElementById("group-line-tooltip");
@@ -367,7 +420,7 @@ function wireGroupLineHover() {
   svg.dataset.groupHoverWired = "true";
 
   svg.addEventListener("mousemove", (event) => {
-    const group = event.target.closest(".group-point-group");
+    const group = event.target.closest(".group-point-group") || findNearestGroupPoint(event, svg);
     if (!group) {
       hideGroupLineTooltip();
       return;
@@ -460,11 +513,16 @@ function updateGroupSummary(start, end) {
     range.textContent = `${groupFormatQuarter(start)} to ${groupFormatQuarter(end)}. WPI source: ${window.WPI_METADATA?.seriesId || "WPI"}.`;
   }
   if (!summary || !rows.length) return;
-  const moreAffordable = rows.filter((row) => row.value > 0).length;
-  const lessAffordable = rows.filter((row) => row.value < 0).length;
-  const best = rows[0];
-  const worst = rows[rows.length - 1];
-  summary.textContent = `${moreAffordable} selected groups became more affordable relative to wages and ${lessAffordable} became less affordable. Biggest improvement: ${best.label} (${groupFormatPercent(best.value)}). Biggest pressure: ${worst.label} (${groupFormatPercent(worst.value)}).`;
+  const categoryRows = rows.filter((row) => row.label !== "Overall products and services");
+  if (!categoryRows.length) {
+    summary.textContent = "Select one or more CPI groups to compare them with CPI and wages.";
+    return;
+  }
+  const moreAffordable = categoryRows.filter((row) => row.value > 0).length;
+  const lessAffordable = categoryRows.filter((row) => row.value < 0).length;
+  const best = categoryRows[0];
+  const worst = categoryRows[categoryRows.length - 1];
+  summary.textContent = `Among selected CPI groups, ${moreAffordable} became more affordable relative to wages and ${lessAffordable} became less affordable. Biggest improvement: ${best.label} (${groupFormatPercent(best.value)}). Biggest pressure: ${worst.label} (${groupFormatPercent(worst.value)}).`;
 }
 
 function renderGroupCharts() {
@@ -490,10 +548,10 @@ function initGroupCharts() {
   document.getElementById("group-start-date")?.addEventListener("change", renderGroupCharts);
   document.getElementById("group-end-date")?.addEventListener("change", renderGroupCharts);
   document.getElementById("group-reset")?.addEventListener("click", () => {
-    createGroupToggles();
-    fillGroupDateSelects();
-    renderGroupCharts();
+    setSelectedGroups("default");
   });
+  document.getElementById("group-select-all")?.addEventListener("click", () => setSelectedGroups("all"));
+  document.getElementById("group-clear-all")?.addEventListener("click", () => setSelectedGroups("none"));
   wireGroupLineHover();
   renderGroupCharts();
 }

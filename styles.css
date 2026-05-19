@@ -507,6 +507,13 @@ body {
   margin-bottom: 22px;
 }
 
+.group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .group-dashboard-head h2 {
   max-width: 18ch;
   margin: 0;
@@ -554,6 +561,14 @@ body {
   color: var(--ink);
   font-size: 0.84rem;
   font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.category-toggle:has(input:checked) {
+  border-color: rgba(14, 107, 92, 0.38);
+  background: rgba(14, 107, 92, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(14, 107, 92, 0.08);
 }
 
 .category-toggle input {
@@ -663,6 +678,10 @@ body {
 
   .group-dashboard-head {
     flex-direction: column;
+  }
+
+  .group-actions {
+    justify-content: flex-start;
   }
 
   .group-controls,
