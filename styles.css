@@ -664,6 +664,15 @@ body {
   font-size: 0.72rem;
 }
 
+.tooltip-verdict {
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  white-space: normal;
+  max-width: 260px;
+}
+
 @media (max-width: 940px) {
   .hero,
   .controls-card,

@@ -29,8 +29,25 @@ function groupFormatPercent(value) {
   return `${sign}${value.toFixed(1)}%`;
 }
 
+function groupFormatAbsPercent(value) {
+  if (!Number.isFinite(value)) return "--";
+  return `${Math.abs(value).toFixed(1)}%`;
+}
+
 function groupShortLabel(label, maxLength = 28) {
   return label.length > maxLength ? `${label.slice(0, maxLength - 1)}...` : label;
+}
+
+function groupPointVerdict(line, value) {
+  if (!Number.isFinite(value)) return "No reading is available for this point.";
+  if (line.id === "wpi") {
+    if (value > 0) return `Wages are ${groupFormatAbsPercent(value)} higher than at the start quarter.`;
+    if (value < 0) return `Wages are ${groupFormatAbsPercent(value)} lower than at the start quarter.`;
+    return "Wages are unchanged from the start quarter.";
+  }
+  if (value > 0) return `${line.label} is ${groupFormatAbsPercent(value)} more expensive than at the start quarter.`;
+  if (value < 0) return `${line.label} is ${groupFormatAbsPercent(value)} less expensive than at the start quarter.`;
+  return `${line.label} is unchanged from the start quarter.`;
 }
 
 function escapeGroupAttribute(value) {
@@ -312,15 +329,19 @@ function renderGroupLineChart(start, end) {
     const pathD = svgPath(line.values, width, height, margin, minValue, maxValue);
     const points = line.values.map((point, pointIndex) => {
       if (!Number.isFinite(point.value)) return "";
+      const isFiveYearPoint = (pointIndex > 0 && pointIndex % 20 === 0) || pointIndex === line.values.length - 1;
+      if (!isFiveYearPoint) return "";
       const pointX = margin.left + (line.values.length > 1 ? (plotWidth / (line.values.length - 1)) * pointIndex : plotWidth / 2);
       const pointY = margin.top + plotHeight - ((point.value - minValue) / (maxValue - minValue || 1)) * plotHeight;
-      const title = `${groupFormatQuarter(point.date)}\n${line.label}: ${groupFormatPercent(point.value)} since start quarter`;
+      const verdict = groupPointVerdict(line, point.value);
+      const title = `${groupFormatQuarter(point.date)}\n${line.label}: ${groupFormatPercent(point.value)} since start quarter\n${verdict}`;
       return `
         <g class="group-point-group"
           data-date="${escapeGroupAttribute(point.date)}"
           data-date-label="${escapeGroupAttribute(groupFormatQuarter(point.date))}"
           data-series="${escapeGroupAttribute(line.label)}"
           data-change="${escapeGroupAttribute(groupFormatPercent(point.value))}"
+          data-verdict="${escapeGroupAttribute(verdict)}"
           data-color="${escapeGroupAttribute(line.color)}"
           data-x="${pointX.toFixed(2)}"
           data-y="${pointY.toFixed(2)}">
@@ -344,8 +365,6 @@ function renderGroupLineChart(start, end) {
   svg.innerHTML = `
     <line class="axis-line" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
     <line class="axis-line" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
-    <text class="chart-zone-label chart-zone-bad" x="${margin.left + 20}" y="${margin.top + 38}">MORE EXPENSIVE</text>
-    <text class="chart-zone-label chart-zone-good" x="${margin.left + 20}" y="${height - margin.bottom - 20}">MORE AFFORDABLE</text>
     ${grid}
     ${lineMarkup}
     ${xTicks}
@@ -407,7 +426,8 @@ function showGroupLineTooltip(group) {
       <span>${group.dataset.series || "Series"}</span>
       <span class="tooltip-val">${group.dataset.change || "--"}</span>
     </div>
-    <div class="tooltip-note">Cumulative change since the selected start quarter.</div>
+    <div class="tooltip-verdict">${group.dataset.verdict || "Cumulative change since the selected start quarter."}</div>
+    <div class="tooltip-note">Five-year marker. Cumulative change since the selected start quarter.</div>
   `;
   tooltip.style.left = `${tooltipLeft}px`;
   tooltip.style.top = `${Math.max(10, topPx - 48)}px`;
