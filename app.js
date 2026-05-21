@@ -23,7 +23,6 @@ const elements = {
   basketRows: document.getElementById("basket-rows"),
   basketSummary: document.getElementById("basket-summary"),
   addBasketRow: document.getElementById("add-basket-row"),
-  equalWeights: document.getElementById("equal-weights"),
   primaryStatLabel: document.getElementById("primary-stat-label"),
   selectedChange: document.getElementById("selected-change"),
   cpiChange: document.getElementById("cpi-change"),
@@ -72,6 +71,14 @@ function formatPercent(value) {
   }
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(1)}%`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function setMetricTone(element, value, invert = false) {
@@ -290,6 +297,90 @@ function renderChart(target, filteredPoints, config) {
   `;
 }
 
+function getWpiComparisonRows(filteredPoints) {
+  const firstPoint = filteredPoints[0];
+  const lastPoint = filteredPoints[filteredPoints.length - 1];
+  const wageChange = computePercentChange(firstPoint.wpiValue, lastPoint.wpiValue);
+
+  if (state.mode !== "basket") {
+    return [{
+      label: state.selectedSeries?.label || "Selected good",
+      priceChange: computePercentChange(firstPoint.selectedValue, lastPoint.selectedValue),
+      wageChange,
+    }];
+  }
+
+  return getBasketSelections().map((item) => {
+    const lookup = new Map(item.series.observations.map((point) => [point.date, point.value]));
+    return {
+      label: item.series.label,
+      priceChange: computePercentChange(lookup.get(firstPoint.date), lookup.get(lastPoint.date)),
+      wageChange,
+    };
+  }).filter((row) => Number.isFinite(row.priceChange) && Number.isFinite(row.wageChange));
+}
+
+function renderWpiComparisonChart(target, filteredPoints) {
+  if (!target) return;
+  const rows = getWpiComparisonRows(filteredPoints);
+  if (!rows.length) {
+    target.innerHTML = '<text class="axis-label" x="40" y="80">No wage comparison is available for this selection.</text>';
+    return;
+  }
+
+  const width = 920;
+  const rowHeight = 86;
+  const margin = { top: 36, right: 120, bottom: 36, left: 240 };
+  const height = Math.max(220, margin.top + margin.bottom + rows.length * rowHeight);
+  const values = rows.flatMap((row) => [row.priceChange, row.wageChange]).filter(Number.isFinite);
+  const minValue = Math.min(0, ...values);
+  const maxValue = Math.max(0, ...values);
+  const maxAbs = Math.max(Math.abs(minValue), Math.abs(maxValue), 1);
+  const plotLeft = margin.left;
+  const plotRight = width - margin.right;
+  const zeroX = plotLeft + (plotRight - plotLeft) / 2;
+  const scale = (plotRight - plotLeft) / 2 / maxAbs;
+
+  target.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  function barMarkup(row, value, y, kind, label) {
+    const x = value >= 0 ? zeroX : zeroX + value * scale;
+    const barWidth = Math.max(2, Math.abs(value * scale));
+    const valueX = value >= 0 ? x + barWidth + 8 : x - 8;
+    const anchor = value >= 0 ? "start" : "end";
+    return `
+      <text class="comparison-bar-label" x="${plotLeft - 12}" y="${y + 14}" text-anchor="end">${label}</text>
+      <rect class="comparison-bar-${kind}" x="${x.toFixed(2)}" y="${y}" width="${barWidth.toFixed(2)}" height="18" rx="3">
+        <title>${escapeHtml(row.label)} ${label.toLowerCase()}: ${formatPercent(value)}</title>
+      </rect>
+      <text class="comparison-value-label" x="${valueX.toFixed(2)}" y="${y + 14}" text-anchor="${anchor}">${formatPercent(value)}</text>
+    `;
+  }
+
+  const rowMarkup = rows.map((row, index) => {
+    const y = margin.top + index * rowHeight;
+    return `
+      <text class="comparison-row-label" x="${plotLeft - 12}" y="${y - 8}" text-anchor="end">${escapeHtml(row.label)}</text>
+      ${barMarkup(row, row.priceChange, y + 4, "price", "CPI price growth")}
+      ${barMarkup(row, row.wageChange, y + 32, "wage", "Wage growth")}
+    `;
+  }).join("");
+
+  const axisTicks = [-maxAbs, 0, maxAbs].map((value) => {
+    const x = zeroX + value * scale;
+    return `
+      <line class="grid-line" x1="${x.toFixed(2)}" y1="${margin.top - 20}" x2="${x.toFixed(2)}" y2="${height - margin.bottom + 8}"></line>
+      <text class="axis-label" x="${x.toFixed(2)}" y="${height - 12}" text-anchor="middle">${formatPercent(value)}</text>
+    `;
+  }).join("");
+
+  target.innerHTML = `
+    <line class="comparison-axis" x1="${zeroX}" y1="${margin.top - 24}" x2="${zeroX}" y2="${height - margin.bottom + 10}"></line>
+    ${axisTicks}
+    ${rowMarkup}
+  `;
+}
+
 function resetEmptyState(message) {
   elements.cpiChartTitle.textContent = "Waiting for a selection";
   elements.cpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date.";
@@ -336,11 +427,10 @@ function getBasketSelections() {
   return state.basketRows
     .map((row) => {
       const series = state.dataset.series.find((item) => item.seriesId === row.seriesId);
-      const weight = Number(row.weight);
-      if (!series || !Number.isFinite(weight) || weight <= 0) {
+      if (!series) {
         return null;
       }
-      return { series, weight };
+      return { series, weight: 1 };
     })
     .filter(Boolean);
 }
@@ -348,13 +438,13 @@ function getBasketSelections() {
 function buildBasketSeries() {
   const selections = getBasketSelections();
   if (selections.length < 2) {
-    return { points: [], label: "Custom basket", description: "Add at least two goods with positive weights." };
+    return { points: [], label: "Custom basket", description: "Add at least two goods." };
   }
 
-  const totalWeight = selections.reduce((sum, item) => sum + item.weight, 0);
+  const totalWeight = selections.length;
   const normalized = selections.map((item) => ({
     ...item,
-    weight: item.weight / totalWeight,
+    weight: 1 / totalWeight,
   }));
 
   const sharedDates = normalized.reduce((dates, item, index) => {
@@ -384,7 +474,7 @@ function buildBasketSeries() {
   return {
     points,
     label: "Custom basket",
-    description: `${selections.length} goods combined using your weights (normalized to 100%).`,
+    description: `${selections.length} goods combined equally. The wage comparison shows each basket item separately.`,
   };
 }
 
@@ -404,7 +494,6 @@ function updateView() {
 
   const rebasedCpiPoints = rebasePoints(filteredPoints, ["selectedValue", "cpiValue"]);
   const wpiAvailable = filteredPoints[0].date >= WPI_START_DATE && filteredPoints.every((point) => Number.isFinite(point.wpiValue));
-  const rebasedWpiPoints = wpiAvailable ? rebasePoints(filteredPoints, ["selectedValue", "wpiValue"]) : [];
 
   elements.emptyState.textContent = "";
   updateStatCards(filteredPoints);
@@ -414,12 +503,11 @@ function updateView() {
   });
 
   if (wpiAvailable) {
-    renderChart(elements.wpiChart, rebasedWpiPoints, {
-      keys: ["wpiValue", "selectedValue"],
-      classNames: { selectedValue: "selected", wpiValue: "wpi" },
-    });
+    renderWpiComparisonChart(elements.wpiChart, filteredPoints);
     elements.wpiLegend.classList.remove("is-hidden");
-    elements.wpiChartSubtitle.textContent = "Both series are rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.";
+    elements.wpiChartSubtitle.textContent = state.mode === "basket"
+      ? "Each basket item is compared with WPI over the selected range. Basket items are equally weighted."
+      : "Selected good price growth and Wage Price Index growth over the selected range.";
   } else {
     elements.wpiChart.innerHTML = "";
     elements.wpiLegend.classList.add("is-hidden");
@@ -453,37 +541,6 @@ function renderBasketRows() {
       refreshModeView();
     });
 
-    // Weight group
-    const weightWrap = document.createElement("div");
-    weightWrap.className = "basket-weight";
-
-    const weightInput = document.createElement("input");
-    weightInput.type = "number";
-    weightInput.min = "0";
-    weightInput.step = "0.1";
-    weightInput.value = row.weight;
-    weightInput.addEventListener("input", () => {
-      row.weight = weightInput.value;
-      updateWeightBar();
-      refreshModeView();
-    });
-
-    // Weight fill bar
-    const barWrap = document.createElement("div");
-    barWrap.className = "basket-weight-bar";
-    const barFill = document.createElement("div");
-    barFill.className = "basket-weight-fill";
-    barWrap.appendChild(barFill);
-
-    function updateWeightBar() {
-      const total = state.basketRows.reduce((s, r) => s + Math.max(0, Number(r.weight)), 0);
-      const pct = total > 0 ? Math.min(100, (Math.max(0, Number(row.weight)) / total) * 100) : 0;
-      barFill.style.width = pct.toFixed(1) + "%";
-    }
-    updateWeightBar();
-
-    weightWrap.append(weightInput, barWrap);
-
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "danger-button";
@@ -498,38 +555,25 @@ function renderBasketRows() {
       wrapper.classList.add("basket-row-warning");
     }
 
-    wrapper.append(numBadge, select, weightWrap, removeButton);
+    wrapper.append(numBadge, select, removeButton);
     elements.basketRows.appendChild(wrapper);
   });
 
-  const totalWeight = getBasketSelections().reduce((sum, item) => sum + item.weight, 0);
   const duplicateCount = usedIds.length - new Set(usedIds).size;
-  let summary = `Weight total: ${totalWeight.toFixed(1)} â€” automatically normalised to 100% for the chart.`;
+  let summary = `${getBasketSelections().length} goods selected. Each good is weighted equally in the basket.`;
   if (duplicateCount > 0) {
-    summary += " âš  Duplicate goods detected.";
+    summary += " Duplicate goods detected.";
   }
   elements.basketSummary.textContent = summary;
 }
 
-function addBasketRow(seriesId = null, weight = 1) {
+function addBasketRow(seriesId = null) {
   const options = getAvailableSeries();
   const fallback = options[state.basketRows.length % options.length];
   state.basketRows.push({
     id: ++state.basketRowId,
     seriesId: seriesId || fallback.seriesId,
-    weight,
   });
-}
-
-function applyEqualWeights() {
-  if (!state.basketRows.length) {
-    return;
-  }
-  const weight = 100 / state.basketRows.length;
-  state.basketRows.forEach((row) => {
-    row.weight = weight.toFixed(1);
-  });
-  refreshModeView();
 }
 
 function updateSingleSeriesView() {
@@ -546,8 +590,8 @@ function updateSingleSeriesView() {
   }
   elements.cpiChartTitle.textContent = `${series.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = `${series.seriesId} and All groups CPI, both rebased to 100 at the selected start date.`;
-  elements.wpiChartTitle.textContent = `${series.label} vs WPI`;
-  elements.wpiChartSubtitle.textContent = `${series.seriesId} and All sector WPI, both rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.`;
+  elements.wpiChartTitle.textContent = `${series.label}: price growth vs wage growth`;
+  elements.wpiChartSubtitle.textContent = "Horizontal bars compare selected price growth with WPI wage growth.";
   updateView();
 }
 
@@ -561,7 +605,7 @@ function updateBasketView() {
   elements.selectionMeta.textContent = basket.description;
 
   if (!basket.points.length) {
-    resetEmptyState("Add at least two goods with positive weights to build a basket.");
+    resetEmptyState("Add at least two goods to build a basket.");
     return;
   }
 
@@ -571,8 +615,8 @@ function updateBasketView() {
   }
   elements.cpiChartTitle.textContent = `${basket.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = "Custom basket and All groups CPI, both rebased to 100 at the selected start date.";
-  elements.wpiChartTitle.textContent = `${basket.label} vs WPI`;
-  elements.wpiChartSubtitle.textContent = "Custom basket and All sector WPI, both rebased to 100 at the selected start date. Wage data follows the bundled WPI workbook.";
+  elements.wpiChartTitle.textContent = "Basket items: price growth vs wage growth";
+  elements.wpiChartSubtitle.textContent = "Each selected basket item is compared with WPI wage growth.";
   updateView();
 }
 
@@ -610,8 +654,8 @@ async function init() {
 
   elements.seriesSelect.value = initialSeries.seriesId;
 
-  addBasketRow(initialSeries.seriesId, 50);
-  addBasketRow(getAvailableSeries().find((series) => series.seriesId !== initialSeries.seriesId)?.seriesId, 50);
+  addBasketRow(initialSeries.seriesId);
+  addBasketRow(getAvailableSeries().find((series) => series.seriesId !== initialSeries.seriesId)?.seriesId);
 
   elements.modeSelect.addEventListener("change", () => {
     state.mode = elements.modeSelect.value;
@@ -649,8 +693,6 @@ async function init() {
     addBasketRow();
     refreshModeView();
   });
-
-  elements.equalWeights.addEventListener("click", applyEqualWeights);
 
   document.addEventListener("click", (event) => {
     const toggle = event.target.closest("[data-info-toggle]");

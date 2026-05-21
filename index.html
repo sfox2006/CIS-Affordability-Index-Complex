@@ -326,7 +326,7 @@
     .basket-explainer strong { color: var(--ink); }
     .basket-cols-header {
       display: grid;
-      grid-template-columns: 40px 1fr 160px 90px;
+      grid-template-columns: 40px 1fr 90px;
       gap: 12px; align-items: center;
       padding: 0 16px 8px;
       border-bottom: 1px solid var(--line2);
@@ -350,7 +350,7 @@
     .danger-button:hover { border-color: var(--red); background: rgba(201,64,58,0.05); }
     .basket-rows { display: flex; flex-direction: column; gap: 8px; }
     .basket-row {
-      display: grid; grid-template-columns: 40px 1fr 160px 90px;
+      display: grid; grid-template-columns: 40px 1fr 90px;
       gap: 12px; align-items: center;
       padding: 14px 16px;
       border-radius: 14px;
@@ -366,29 +366,6 @@
       font: 700 0.78rem 'Manrope', sans-serif;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-    }
-    .basket-weight {
-      display: flex; flex-direction: column; gap: 4px;
-      position: relative;
-    }
-    .basket-weight input {
-      height: 40px; padding: 0 12px;
-      border-radius: 8px; border: 1.5px solid var(--line);
-      background: var(--surface);
-      font: 700 0.95rem 'Manrope', sans-serif;
-      color: var(--ink);
-      width: 100%;
-    }
-    .basket-weight input:focus { outline: none; border-color: var(--cg); box-shadow: 0 0 0 3px rgba(14,107,92,0.1); }
-    .basket-weight-bar {
-      height: 3px; border-radius: 2px;
-      background: var(--line);
-      overflow: hidden;
-    }
-    .basket-weight-fill {
-      height: 100%; border-radius: 2px;
-      background: var(--cg);
-      transition: width 0.3s;
     }
     .basket-row-meta { font-size: 0.73rem; color: var(--muted); }
     .basket-footer {
@@ -555,6 +532,32 @@
     .chart-point.selected { fill: var(--blue, #0b6ea8); }
     .chart-point.cpi { fill: var(--red, #c9403a); }
     .chart-point.wpi { fill: var(--wpi-c, #7d4bd1); }
+
+    .comparison-axis {
+      stroke: rgba(22,54,47,0.16);
+      stroke-width: 1;
+    }
+    .comparison-row-label {
+      fill: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .comparison-bar-label,
+    .comparison-value-label {
+      fill: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .comparison-value-label {
+      fill: var(--ink);
+      font-size: 0.78rem;
+    }
+    .comparison-bar-price {
+      fill: var(--blue);
+    }
+    .comparison-bar-wage {
+      fill: var(--wpi-c);
+    }
 
     /* Tooltip */
     .chart-tooltip {
@@ -1210,28 +1213,20 @@
         </div>
         <div class="basket-actions">
           <button id="add-basket-row" type="button" class="secondary-button">+ Add good</button>
-          <button id="equal-weights" type="button" class="secondary-button">Equal weights</button>
         </div>
       </div>
 
       <!-- Explainer -->
       <div class="basket-explainer">
         <div class="basket-explainer-icon">i</div>
-        <p>A <strong>basket</strong> lets you combine multiple goods into a single composite series. Assign a <strong>weight</strong> to each good to reflect its relative importance &mdash; for example, give housing a higher weight than accessories if you want the basket to reflect typical household spending. Weights are automatically normalised to 100%, so only the <em>ratios</em> between them matter, not the actual numbers you enter.</p>
+        <p>A <strong>basket</strong> lets you combine multiple goods into a single composite series. Each selected good is treated equally, and the wage comparison below shows every basket item separately.</p>
       </div>
 
       <!-- Column headers -->
       <div class="basket-cols-header">
         <div></div>
         <div class="basket-col-label">Good or goods group</div>
-        <div class="basket-col-label">
-          Weight
-          <button class="info-btn" type="button" data-info-toggle="weight-info" aria-label="What is a weight?">i</button>
-        </div>
         <div></div>
-      </div>
-      <div id="weight-info" class="info-popover" style="margin: 0 0 12px;">
-        Weights determine how much each good contributes to the basket's overall price movement. A good with weight 70 has twice the influence of a good with weight 35. Weights are automatically normalised to sum to 100%.
       </div>
 
       <div id="basket-rows" class="basket-rows"></div>
