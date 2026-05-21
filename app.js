@@ -166,13 +166,18 @@ function applyQuickRange() {
 function updateStatCards(filteredPoints) {
   const firstPoint = filteredPoints[0];
   const lastPoint = filteredPoints[filteredPoints.length - 1];
+  const wpiPoints = filteredPoints.filter((point) => point.date >= WPI_START_DATE && Number.isFinite(point.wpiValue));
+  const firstWpiPoint = wpiPoints[0];
+  const lastWpiPoint = wpiPoints[wpiPoints.length - 1];
   const selectedChange = computePercentChange(firstPoint.selectedValue, lastPoint.selectedValue);
   const cpiChange = computePercentChange(firstPoint.cpiValue, lastPoint.cpiValue);
-  const wpiAvailable = firstPoint.date >= WPI_START_DATE && Number.isFinite(firstPoint.wpiValue) && Number.isFinite(lastPoint.wpiValue);
-  const wpiChange = wpiAvailable ? computePercentChange(firstPoint.wpiValue, lastPoint.wpiValue) : null;
+  const wpiAvailable = wpiPoints.length >= 2;
+  const selectedWpiWindowChange = wpiAvailable ? computePercentChange(firstWpiPoint.selectedValue, lastWpiPoint.selectedValue) : null;
+  const wpiChange = wpiAvailable ? computePercentChange(firstWpiPoint.wpiValue, lastWpiPoint.wpiValue) : null;
   const gapCpi = Number.isFinite(selectedChange) && Number.isFinite(cpiChange) ? selectedChange - cpiChange : null;
-  const gapWpi = wpiAvailable && Number.isFinite(selectedChange) && Number.isFinite(wpiChange) ? selectedChange - wpiChange : null;
+  const gapWpi = wpiAvailable && Number.isFinite(selectedWpiWindowChange) && Number.isFinite(wpiChange) ? selectedWpiWindowChange - wpiChange : null;
   const rangeLabel = `${formatQuarter(firstPoint.date)} to ${formatQuarter(lastPoint.date)}`;
+  const wpiRangeLabel = wpiAvailable ? `${formatQuarter(firstWpiPoint.date)} to ${formatQuarter(lastWpiPoint.date)}` : "";
 
   elements.selectedChange.textContent = formatPercent(selectedChange);
   elements.cpiChange.textContent = formatPercent(cpiChange);
@@ -181,10 +186,10 @@ function updateStatCards(filteredPoints) {
   elements.gapWpiChange.textContent = wpiAvailable ? formatPercent(gapWpi) : "No data";
   elements.selectedRange.textContent = rangeLabel;
   elements.cpiRange.textContent = rangeLabel;
-  elements.wpiRange.textContent = wpiAvailable ? rangeLabel : "No wage data available for the selected range.";
+  elements.wpiRange.textContent = wpiAvailable ? wpiRangeLabel : "No wage data available for the selected range.";
   elements.gapCpiRange.textContent = "Selected good minus CPI over the chosen window.";
   elements.gapWpiRange.textContent = wpiAvailable
-    ? "Selected good minus WPI over the chosen window."
+    ? "Selected good minus WPI over the matched wage-data window."
     : "WPI is unavailable for the chosen range.";
 
   setMetricTone(elements.selectedChange, selectedChange, true);
@@ -493,7 +498,8 @@ function updateView() {
   }
 
   const rebasedCpiPoints = rebasePoints(filteredPoints, ["selectedValue", "cpiValue"]);
-  const wpiAvailable = filteredPoints[0].date >= WPI_START_DATE && filteredPoints.every((point) => Number.isFinite(point.wpiValue));
+  const wpiPoints = filteredPoints.filter((point) => point.date >= WPI_START_DATE && Number.isFinite(point.wpiValue));
+  const wpiAvailable = wpiPoints.length >= 2;
 
   elements.emptyState.textContent = "";
   updateStatCards(filteredPoints);
@@ -503,11 +509,11 @@ function updateView() {
   });
 
   if (wpiAvailable) {
-    renderWpiComparisonChart(elements.wpiChart, filteredPoints);
+    renderWpiComparisonChart(elements.wpiChart, wpiPoints);
     elements.wpiLegend.classList.remove("is-hidden");
     elements.wpiChartSubtitle.textContent = state.mode === "basket"
-      ? "Each selected good has two bars: its inflation over the selected range and wage growth over the same range."
-      : "The selected good has two bars: its inflation over the selected range and wage growth over the same range.";
+      ? `Each selected good has two bars over the matched WPI window (${formatQuarter(wpiPoints[0].date)} to ${formatQuarter(wpiPoints[wpiPoints.length - 1].date)}).`
+      : `The selected good has two bars over the matched WPI window (${formatQuarter(wpiPoints[0].date)} to ${formatQuarter(wpiPoints[wpiPoints.length - 1].date)}).`;
   } else {
     elements.wpiChart.innerHTML = "";
     elements.wpiLegend.classList.add("is-hidden");
