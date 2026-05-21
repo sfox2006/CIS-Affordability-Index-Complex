@@ -334,8 +334,8 @@ function renderWpiComparisonChart(target, filteredPoints) {
   }
 
   const width = 920;
-  const rowHeight = 86;
-  const margin = { top: 36, right: 120, bottom: 36, left: 240 };
+  const rowHeight = 70;
+  const margin = { top: 78, right: 118, bottom: 36, left: 250 };
   const height = Math.max(220, margin.top + margin.bottom + rows.length * rowHeight);
   const values = rows.flatMap((row) => [row.priceChange, row.wageChange]).filter(Number.isFinite);
   const minValue = Math.min(0, ...values);
@@ -354,20 +354,20 @@ function renderWpiComparisonChart(target, filteredPoints) {
     const valueX = value >= 0 ? x + barWidth + 8 : x - 8;
     const anchor = value >= 0 ? "start" : "end";
     return `
-      <text class="comparison-bar-label" x="${plotLeft - 12}" y="${y + 14}" text-anchor="end">${label}</text>
-      <rect class="comparison-bar-${kind}" x="${x.toFixed(2)}" y="${y}" width="${barWidth.toFixed(2)}" height="18" rx="3">
+      <rect class="comparison-bar-${kind}" x="${x.toFixed(2)}" y="${y}" width="${barWidth.toFixed(2)}" height="16" rx="3">
         <title>${escapeHtml(row.label)} ${label.toLowerCase()}: ${formatPercent(value)}</title>
       </rect>
-      <text class="comparison-value-label" x="${valueX.toFixed(2)}" y="${y + 14}" text-anchor="${anchor}">${formatPercent(value)}</text>
+      <text class="comparison-value-label" x="${valueX.toFixed(2)}" y="${y + 13}" text-anchor="${anchor}">${formatPercent(value)}</text>
     `;
   }
 
   const rowMarkup = rows.map((row, index) => {
     const y = margin.top + index * rowHeight;
     return `
-      <text class="comparison-row-label" x="${plotLeft - 12}" y="${y - 8}" text-anchor="end">${escapeHtml(row.label)}</text>
-      ${barMarkup(row, row.priceChange, y + 4, "price", "Inflation")}
-      ${barMarkup(row, row.wageChange, y + 32, "wage", "Wage growth")}
+      <line class="comparison-row-rule" x1="22" y1="${y - 20}" x2="${width - 28}" y2="${y - 20}"></line>
+      <text class="comparison-row-label" x="${plotLeft - 16}" y="${y + 18}" text-anchor="end">${escapeHtml(row.label)}</text>
+      ${barMarkup(row, row.priceChange, y, "price", "Inflation")}
+      ${barMarkup(row, row.wageChange, y + 24, "wage", "Wage growth")}
     `;
   }).join("");
 
@@ -380,7 +380,15 @@ function renderWpiComparisonChart(target, filteredPoints) {
   }).join("");
 
   target.innerHTML = `
-    <line class="comparison-axis" x1="${zeroX}" y1="${margin.top - 24}" x2="${zeroX}" y2="${height - margin.bottom + 10}"></line>
+    <text class="comparison-heading" x="22" y="30">Good</text>
+    <text class="comparison-heading" x="${plotLeft}" y="30">Bars for % change</text>
+    <g class="comparison-key" transform="translate(${plotLeft}, 50)">
+      <rect class="comparison-bar-price" x="0" y="-11" width="16" height="10" rx="2"></rect>
+      <text class="comparison-key-label" x="23" y="-2">Inflation</text>
+      <rect class="comparison-bar-wage" x="112" y="-11" width="16" height="10" rx="2"></rect>
+      <text class="comparison-key-label" x="135" y="-2">Wage growth</text>
+    </g>
+    <line class="comparison-axis" x1="${zeroX}" y1="${margin.top - 30}" x2="${zeroX}" y2="${height - margin.bottom + 10}"></line>
     ${axisTicks}
     ${rowMarkup}
   `;
