@@ -306,23 +306,38 @@ function getWpiComparisonRows(filteredPoints) {
   const firstPoint = filteredPoints[0];
   const lastPoint = filteredPoints[filteredPoints.length - 1];
   const wageChange = computePercentChange(firstPoint.wpiValue, lastPoint.wpiValue);
+  const withRatio = (row) => ({
+    ...row,
+    affordabilityRatio: Number.isFinite(row.priceChange) && row.priceChange !== 0 && Number.isFinite(row.wageChange)
+      ? row.wageChange / row.priceChange
+      : null,
+  });
 
   if (state.mode !== "basket") {
-    return [{
+    return [withRatio({
       label: state.selectedSeries?.label || "Selected good",
       priceChange: computePercentChange(firstPoint.selectedValue, lastPoint.selectedValue),
       wageChange,
-    }];
+    })];
   }
 
   return getBasketSelections().map((item) => {
     const lookup = new Map(item.series.observations.map((point) => [point.date, point.value]));
-    return {
+    return withRatio({
       label: item.series.label,
       priceChange: computePercentChange(lookup.get(firstPoint.date), lookup.get(lastPoint.date)),
       wageChange,
-    };
-  }).filter((row) => Number.isFinite(row.priceChange) && Number.isFinite(row.wageChange));
+    });
+  })
+    .filter((row) => Number.isFinite(row.priceChange) && Number.isFinite(row.wageChange))
+    .sort((a, b) => {
+      if (Number.isFinite(b.affordabilityRatio) && Number.isFinite(a.affordabilityRatio)) {
+        return b.affordabilityRatio - a.affordabilityRatio;
+      }
+      if (Number.isFinite(b.affordabilityRatio)) return 1;
+      if (Number.isFinite(a.affordabilityRatio)) return -1;
+      return 0;
+    });
 }
 
 function renderWpiComparisonChart(target, filteredPoints) {
@@ -355,7 +370,7 @@ function renderWpiComparisonChart(target, filteredPoints) {
     const anchor = value >= 0 ? "start" : "end";
     return `
       <rect class="comparison-bar-${kind}" x="${x.toFixed(2)}" y="${y}" width="${barWidth.toFixed(2)}" height="16" rx="3">
-        <title>${escapeHtml(row.label)} ${label.toLowerCase()}: ${formatPercent(value)}</title>
+        <title>${escapeHtml(row.label)} ${label.toLowerCase()}: ${formatPercent(value)}. Affordability ratio: ${Number.isFinite(row.affordabilityRatio) ? row.affordabilityRatio.toFixed(2) : "n/a"}</title>
       </rect>
       <text class="comparison-value-label" x="${valueX.toFixed(2)}" y="${y + 13}" text-anchor="${anchor}">${formatPercent(value)}</text>
     `;
