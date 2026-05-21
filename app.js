@@ -361,7 +361,7 @@ function renderWpiComparisonChart(target, filteredPoints) {
     const y = margin.top + index * rowHeight;
     return `
       <text class="comparison-row-label" x="${plotLeft - 12}" y="${y - 8}" text-anchor="end">${escapeHtml(row.label)}</text>
-      ${barMarkup(row, row.priceChange, y + 4, "price", "CPI price growth")}
+      ${barMarkup(row, row.priceChange, y + 4, "price", "Inflation")}
       ${barMarkup(row, row.wageChange, y + 32, "wage", "Wage growth")}
     `;
   }).join("");
@@ -506,8 +506,8 @@ function updateView() {
     renderWpiComparisonChart(elements.wpiChart, filteredPoints);
     elements.wpiLegend.classList.remove("is-hidden");
     elements.wpiChartSubtitle.textContent = state.mode === "basket"
-      ? "Each basket item is compared with WPI over the selected range. Basket items are equally weighted."
-      : "Selected good price growth and Wage Price Index growth over the selected range.";
+      ? "Each selected good has two bars: its inflation over the selected range and wage growth over the same range."
+      : "The selected good has two bars: its inflation over the selected range and wage growth over the same range.";
   } else {
     elements.wpiChart.innerHTML = "";
     elements.wpiLegend.classList.add("is-hidden");
@@ -590,8 +590,8 @@ function updateSingleSeriesView() {
   }
   elements.cpiChartTitle.textContent = `${series.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = `${series.seriesId} and All groups CPI, both rebased to 100 at the selected start date.`;
-  elements.wpiChartTitle.textContent = `${series.label}: price growth vs wage growth`;
-  elements.wpiChartSubtitle.textContent = "Horizontal bars compare selected price growth with WPI wage growth.";
+  elements.wpiChartTitle.textContent = `${series.label}: inflation vs wage growth`;
+  elements.wpiChartSubtitle.textContent = "Horizontal bars compare selected inflation with WPI wage growth.";
   updateView();
 }
 
@@ -615,8 +615,8 @@ function updateBasketView() {
   }
   elements.cpiChartTitle.textContent = `${basket.label} vs CPI`;
   elements.cpiChartSubtitle.textContent = "Custom basket and All groups CPI, both rebased to 100 at the selected start date.";
-  elements.wpiChartTitle.textContent = "Basket items: price growth vs wage growth";
-  elements.wpiChartSubtitle.textContent = "Each selected basket item is compared with WPI wage growth.";
+  elements.wpiChartTitle.textContent = "Selected goods: inflation vs wage growth";
+  elements.wpiChartSubtitle.textContent = "Each selected basket item has one inflation bar and one wage growth bar.";
   updateView();
 }
 
